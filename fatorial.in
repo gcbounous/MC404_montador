@@ -4,7 +4,7 @@
 
 Aqui:
 	LMQM M(0x102)
-	MUL M(0x103)
+	MUL M(0x103) #blablabla
 	LMQ
 	ST M(0x102)
 	LD M(0x103)
@@ -13,6 +13,7 @@ Aqui:
 	LD M(0x100)
 	SUB M(0x103)
 	JMPP M(Aqui)
+
 
 .org 0x100
 # N – Para N=10 (0xA), o resultado e 3628800 (375F00)
