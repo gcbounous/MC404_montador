@@ -1,2 +1,3 @@
 retornaTokens
 	- limpar comentarios grudados nas palavras
+	- noa fazer diferença entre maiusculas e minusculas (trasnformar tudo em minusculas ou maisculas)
