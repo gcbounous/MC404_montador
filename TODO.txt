@@ -1,0 +1,2 @@
+retornaTokens
+	- limpar comentarios grudados nas palavras

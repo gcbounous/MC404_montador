@@ -1,21 +1,17 @@
-#include<stdio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
+#include "retornaTokens.h"
 
-int main(int argc, char *argv[]) {
-
-    return 0;
-}
-
-FILE* retornaTokens(FILE *arq, char *nomeArq){
+void retornaTokens(char *nomeArq){
 
     FILE *tokens;
-    char frase[1001], aux;
+    FILE *arq;
+    char frase[1001];
     char *token;
-    int i, quebra = 0;
 
     /* abre o arquivo */
     arq = fopen(nomeArq, "r");
-    tokens = fopen("tokens.txt", "w");
+    tokens = fopen("tokens.txt", "w+");
 
     while(fgets(frase, 1000, arq)){
         token = strtok(frase," \t\n");
@@ -29,6 +25,12 @@ FILE* retornaTokens(FILE *arq, char *nomeArq){
     /* fecha os arquivos */
     fclose(arq);
     fclose(tokens);
-
-    return tokens;
 }
+
+int main(int argc, char *argv[]) {
+	char *nomeArq = "fatorial.in";
+	retornaTokens(nomeArq);
+    return 0;
+}
+
+
