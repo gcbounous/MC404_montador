@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+
 #include "retornaTokens.h"
 
 void retornaTokens(char *nomeArq){
@@ -11,7 +12,7 @@ void retornaTokens(char *nomeArq){
 
     /* abre o arquivo */
     arq = fopen(nomeArq, "r");
-    tokens = fopen("tokens.txt", "w+");
+    tokens = fopen("tokens.out", "w+");
 
     while(fgets(frase, 1000, arq)){
         token = strtok(frase," \t\n");
@@ -27,10 +28,6 @@ void retornaTokens(char *nomeArq){
     fclose(tokens);
 }
 
-int main(int argc, char *argv[]) {
-	char *nomeArq = "fatorial.in";
-	retornaTokens(nomeArq);
-    return 0;
-}
+
 
 
