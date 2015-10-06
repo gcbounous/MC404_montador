@@ -11,7 +11,7 @@
 void retornaTokens(char *nomeArqIn, char *nomeArqOut){
 	FILE *tokens;
     FILE *arq;
-    char * nomeOut = (char *) malloc(100);
+    char *nomeOut = (char *) malloc(100);
     char frase[1001];
     char *token;
 
@@ -42,7 +42,7 @@ void retornaTokens(char *nomeArqIn, char *nomeArqOut){
 * Metodo que recupera o nome de um arquivo e tira a extençao, o retornando "limpo" para ser tratado
 */
 char* limpaNomeArquivo(char *nomeCompleto){
-	char * nome = (char *) malloc(100);
+	char *nome = (char *) malloc(100);
 	strcpy(nome, nomeCompleto);
 
 	int i = 0;
