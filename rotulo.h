@@ -8,5 +8,6 @@
 // };
 
 char** recuperarRotulos(char *arquivo, char** lista_rotulos);
+int rotuloValido(char* token);
 
 #endif
