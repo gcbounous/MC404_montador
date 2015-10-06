@@ -1,3 +1,4 @@
 retornaTokens
 	- limpar comentarios grudados nas palavras
-	- noa fazer diferença entre maiusculas e minusculas (trasnformar tudo em minusculas ou maisculas)
+	- nao fazer diferença entre maiusculas e minusculas (trasnformar tudo em minusculas ou maisculas)
+	- verificar criaçao do nomes dos arquivos	
