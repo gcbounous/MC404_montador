@@ -37,7 +37,13 @@ int main(int argc, char *argv[]) {
 	strcat(nomeArqOut, ".out");
 	rotulos = recuperarRotulos(nomeArqOut, &(*rotulos));
 
+	for(i=0; i<4; i++)
+	{
+		printf("%s\n", rotulos[i]);
+	}
+		
+
 	free(nomeArqOut);
 	free(rotulos);
-    return 0;
+	return 0;
 }
