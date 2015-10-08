@@ -42,6 +42,6 @@ int main(int argc, char *argv[]) {
 	//remove(nomeArqOut);
 	free(nomeSemSufixo);
 	free(nomeArqOut);
-	free(rotulos);
+	free(rotulos); //todo free espacos da tabela
     return 0;
 }
