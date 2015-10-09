@@ -8,7 +8,6 @@
 
 char** recuperarRotulos(char *arquivo, char **lista_rotulos)
 {
-	// char **rotulos = malloc(sizeof(char)*sizeof(char));
 	FILE *arq_stream;
 	char uma_linha[100];
 
