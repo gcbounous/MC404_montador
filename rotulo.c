@@ -17,10 +17,8 @@ char** recuperarRotulos(char *arquivo, char **lista_rotulos)
 	int i = 0;
 	while( fgets (uma_linha , 100 , arq_stream) != NULL ) //recupera a linha e grava em uma_linha
 	{
-		//TODO: Porra, estou recuprando as diretivas e nao os rotulos
 		if (rotuloValido(uma_linha))
 		{
-			//TODO: retirar : do rotulo
 			int j = 0;
 			while(uma_linha[j] != ':')
 			{

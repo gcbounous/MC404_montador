@@ -7,6 +7,7 @@
 
 int main(int argc, char *argv[]) {
 	char *nomeArqOut = (char *) malloc(100);
+	char *nomeSemSufixo = (char *) malloc(100);
 	char **rotulos = malloc(1000*sizeof(char*));
 	int i;
 	//alocaçao da memoria para cada string na tabela
@@ -15,7 +16,7 @@ int main(int argc, char *argv[]) {
 		rotulos[i] = malloc(100*sizeof(char));
 	}
 
-	//rotulo rotulos = {}
+	//TODO: struc com rotulo e endereco
 
 	//tratamento caso tenha o nome do arquivo de saida ou nao
 	if( argc < 2)
@@ -25,25 +26,22 @@ int main(int argc, char *argv[]) {
 	}
 	else if( argc == 2)
 	{
-		strcpy(nomeArqOut, limpaNomeArquivo(argv[1]));
+		strcpy(nomeArqOut, argv[1]);
 		retornaTokens(argv[1], nomeArqOut);
 	}
 	else
 	{
-		strcpy(nomeArqOut, limpaNomeArquivo(argv[2]));
+		strcpy(nomeArqOut, argv[2]);
 		retornaTokens(argv[1], nomeArqOut);
 	}
-
+	
+	strcpy(nomeSemSufixo, nomeArqOut);
 	strcat(nomeArqOut, ".out");
 	rotulos = recuperarRotulos(nomeArqOut, &(*rotulos));
 
-	for(i=0; i<4; i++)
-	{
-		printf("%s\n", rotulos[i]);
-	}
-		
-
+	//remove(nomeArqOut);
+	free(nomeSemSufixo);
 	free(nomeArqOut);
-	free(rotulos);
-	return 0;
+	free(rotulos); //todo free espacos da tabela
+    return 0;
 }

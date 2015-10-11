@@ -1,8 +1,6 @@
 retornaTokens
-	- limpar comentarios grudados nas palavras
-	- nao fazer diferença entre maiusculas e minusculas (trasnformar tudo em minusculas ou maisculas)
-	- verificar criaçao do nomes dos arquivos	
+	- limpar comentarios grudados nas palavras	
 
-rotulos
-	- struct rotulo
-	- endereçar cada rotulo 
+Rotulos
+	-struct com a memoria
+	- endereçar cada rotulo
