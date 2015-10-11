@@ -1,7 +1,0 @@
-retornaTokens
-	- limpar comentarios grudados nas palavras	
-
-Rotulos
-	-struct com a memoria
-	- endereçar cada rotulo
-
