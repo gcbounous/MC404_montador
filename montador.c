@@ -4,8 +4,18 @@
 
 #include "rotulo.h"
 #include "retornaTokens.h"
+#include "tradutor.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+	// exemplo de codigo de traduçao de uma instrucao
+	// char *codigo = malloc(sizeof(char*)*10);
+	// enum mnemonico mnemonico = JMP;
+	// char *endereco = "074";
+	// printf("O codigo para a instrucao JMP para o end %s é: ", endereco);
+	// printf("%s\n", traduzir(mnemonico, endereco, 0, codigo));
+	// free(codigo);
+
 	char *nomeArqOut = (char *) malloc(100);
 	char *nomeSemSufixo = (char *) malloc(100);
 	char **rotulos = malloc(1000*sizeof(char*));
@@ -22,7 +32,7 @@ int main(int argc, char *argv[]) {
 	if( argc < 2)
 	{
 		printf("Lançar o programa no formato:\n\t./montador arquivo_de_entrada [arquivo_de_saida]\n");
-		// return 0;
+		return 0;
 	}
 	else if( argc == 2)
 	{
