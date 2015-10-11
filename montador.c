@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 	strcat(nomeArqOut, ".out");
 	rotulos = recuperarRotulos(nomeArqOut, &(*rotulos));
 
-	//remove(nomeArqOut);
+	remove(nomeArqOut);
 	free(nomeSemSufixo);
 	free(nomeArqOut);
 	free(rotulos); //todo free espacos da tabela
