@@ -44,4 +44,5 @@ int main(int argc, char *argv[]) {
 	free(nomeArqOut);
 	free(rotulos); //todo free espacos da tabela
     return 0;
+    
 }
