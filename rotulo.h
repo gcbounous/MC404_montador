@@ -2,15 +2,15 @@
 #define ROTULO_H_
 
 
-struct rotulo
+struct Rotulo
 {
 	char nome[100];
 	int endereco;
 	int a_direita;
 };
-typedef struct rotulo rotulo;
+typedef struct Rotulo Rotulo;
 
-void recuperarRotulos(char *arquivo, rotulo rotulos[]);
+void recuperarRotulos(char *arquivo, Rotulo rotulos[]);
 int rotuloValido(char* token);
 
 #endif

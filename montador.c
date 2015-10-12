@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
 	char *nomeArqOut = (char *) malloc(100);
 	char *nomeSemSufixo = (char *) malloc(100);
-	rotulo rotulos[50];
+	Rotulo rotulos[50];
 
 	//tratamento caso tenha o nome do arquivo de saida ou nao
 	if( argc < 2)

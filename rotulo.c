@@ -5,7 +5,7 @@
 
 #include "rotulo.h"
 
-void recuperarRotulos(char *arquivo, rotulo rotulos[])
+void recuperarRotulos(char *arquivo, Rotulo rotulos[])
 {
 	FILE *arq_stream;
 	char uma_linha[100];
