@@ -5,9 +5,8 @@
 
 #include "rotulo.h"
 
-char** recuperarRotulos(char *arquivo, char **lista_rotulos)
+void recuperarRotulos(char *arquivo, rotulo rotulos[])
 {
-	// char **rotulos = malloc(sizeof(char)*sizeof(char));
 	FILE *arq_stream;
 	char uma_linha[100];
 
@@ -21,13 +20,12 @@ char** recuperarRotulos(char *arquivo, char **lista_rotulos)
 			int j = 0;
 			while(uma_linha[j] != ':')
 			{
-				lista_rotulos[i][j] = uma_linha[j];
+				rotulos[i].nome[j] = uma_linha[j];
 				j++;
-			}	
+			}
 		}
 		i++;
 	}
-	 return lista_rotulos;
 }
 
 int rotuloValido(char* token)

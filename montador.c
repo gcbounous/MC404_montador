@@ -6,6 +6,8 @@
 #include "retornaTokens.h"
 #include "tradutor.h"
 
+
+
 int main(int argc, char *argv[])
 {
 	// exemplo de codigo de traduçao de uma instrucao
@@ -18,15 +20,7 @@ int main(int argc, char *argv[])
 
 	char *nomeArqOut = (char *) malloc(100);
 	char *nomeSemSufixo = (char *) malloc(100);
-	char **rotulos = malloc(1000*sizeof(char*));
-	int i;
-	//alocaçao da memoria para cada string na tabela
-	for(i = 0; i<1000; i++)
-	{
-		rotulos[i] = malloc(100*sizeof(char));
-	}
-
-	//TODO: struc com rotulo e endereco
+	rotulo rotulos[50];
 
 	//tratamento caso tenha o nome do arquivo de saida ou nao
 	if( argc < 2)
@@ -47,12 +41,10 @@ int main(int argc, char *argv[])
 	
 	strcpy(nomeSemSufixo, nomeArqOut);
 	strcat(nomeArqOut, ".out");
-	rotulos = recuperarRotulos(nomeArqOut, &(*rotulos));
+	recuperarRotulos(nomeArqOut, rotulos);
 
 	remove(nomeArqOut);
 	free(nomeSemSufixo);
 	free(nomeArqOut);
-	free(rotulos); //todo free espacos da tabela
     return 0;
-    
 }
