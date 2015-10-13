@@ -1,9 +1,35 @@
 Teste: #esse é um teste de rotulo
 oi:
 _rotuloooo_:
-
+oi1236:
 isso_e_um_rotuloo:
 
 issoNao.e_umRotulo:
 nemIsso::
 :muitomenosIsso:
+
+.org
+.oi
+.fill
+.word
+.set
+.align
+
+
+LDMQ
+	LDMQM
+	STR
+	LOAD
+	LDN
+	LDABS
+	JMP
+	JGEZ
+	ADD
+	ADDABS
+	SUB
+	SUBABS
+	MUL
+	DIV
+	LSH
+	RSH
+	STM

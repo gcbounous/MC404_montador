@@ -3,7 +3,7 @@
 
 enum mnemonico
 {
-	LDMQ,
+	LDMQ = 1,
 	LDMQM,
 	STR,
 	LOAD,
@@ -21,6 +21,7 @@ enum mnemonico
 	RSH,
 	STM
 };
+typedef enum mnemonico Mnemonico;
 
 char* traduzir(int mnemonico, char* endereco, int a_direita, char *codigo);
 char* retornaCodigoLDMQ(char *codigo);

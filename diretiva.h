@@ -1,20 +1,21 @@
-#ifndef DIRETIVAS_H_INCLUDED
-#define DIRETIVAS_H_INCLUDED
+#ifndef DIRETIVA_H_   
+#define DIRETIVA_H_
 
-struct Diretiva{
-    char *nome;
-    int valor;
+struct diretiva
+{
+	char *nome;
+	char *valor;
 };
+typedef struct diretiva Diretiva;
 
-struct Posicao{
-    int linha;
-    int direita;
+struct Posicao
+{
+	int pos;
+	int a_direita;
 };
-
-typedef struct Diretiva Diretiva;
 typedef struct Posicao Posicao;
 
-int trataDiretivas(FILE *arq, Posicao posicaoAtual, Diretiva diretivas[], FILE *hex);
+int diretivaValida(char *token);
 
 int diretivaSet(char *arg1, char *arg2, Diretiva diretivas[]);
 
@@ -26,6 +27,4 @@ int diretivaAlign(char *arg, Diretiva diretivas[], Posicao posicaoAtual);
 
 int diretivaWfill(char *arg1, char *arg2, Diretiva diretivas[], Posicao posicaoAtual);
 
-int mnemonicos(char *token);
-
-#endif // DIRETIVAS_H_INCLUDED
+#endif

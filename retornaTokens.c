@@ -8,34 +8,35 @@
 * Metodo que recebe o nome do arquivo de entrada e de saida (opcional) e limpa o codigo dos comentarios e retira dele os tokens necessarios para o tratamento. 
 * Os tokens sao registrados em um arquivo .out
 */
-void retornaTokens(char *nomeArqIn, char *nomeArqOut){
-	FILE *tokens;
+char** retornaTokens(char *nomeArqIn, char **vet_tokens){
     FILE *arq;
-    char *nomeOut = (char *) malloc(100);
     char frase[1001];
     char *token;
 
-    strcpy(nomeOut, nomeArqOut);
-    strcat(nomeOut, ".out");
-    
     /* abre o arquivo */
     arq = fopen(nomeArqIn, "r");
-    tokens = fopen(nomeOut, "w+");
 
+    int i = 0;
     while(fgets(frase, 1000, arq)){
         token = strtok(frase," \t\n");
         while(token != NULL && *token != '#' && *token != ';'){
+            int j = 0;
+            while(token[j] != '\0'){
+                if(token[j] >= 97 && token[j] <= 122)
+                    token[j] -= 32;
+                    j++;
+            }
             /* escreve o token */
-            fprintf(tokens, "%s\n" ,token);
+            strcpy(vet_tokens[i], token);
+            // printf("%s\n", vet_tokens[i]);
             token = strtok(NULL," \t\n");
+            i++;
         }
     }
-
     /* fecha os arquivos */
     fclose(arq);
-    fclose(tokens);
 
-    free(nomeOut);
+    return vet_tokens;
 }
 
 /*

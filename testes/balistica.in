@@ -14,135 +14,136 @@
 
 
 # Carregar o dado de entrada em MQ (para multiplicacao)
-LMQM M(0x100)
+LDMQM M(0x100)
 # Multiplicar o valor por 10
 MUL M(0x101)  # M(x0101) contém a constante 10.
 
 # Salvar o resultado em Y
-LMQ        # AC <= MQ
-ST M(0x103) # M(0x102) <= AC
+LDMQ        # AC <= MQ
+STR M(0x103) # M(0x102) <= AC
 
 # ---------------------------
 # Computar o primeiro X e salvar.
 # X = Y/2
 # Y ja esta em AC
 RSH
-ST M(0x102)
+STR M(0x102)
 
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
 # AC <= Y
-LD M(0x103)
+LOAD M(0x103)
 # MQ <= AC / M(X)
 DIV M(0x102)
 # AC <= MQ
-LMQ
+LDMQ
 # AC <= AC + M(X)
 ADD M(0x102)
 # AC <= AC >> 1
 RSH
 # M(X) <= AC
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
-# ---------------------------
-# ---------------------------
-# Computar X' e salvar em X
-# X'= (X + (Y/X)) / 2
-LD M(0x103)
-DIV M(0x102)
-LMQ
-ADD M(0x102)
-RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 # Computar X' e salvar em X
 # X'= (X + (Y/X)) / 2
-LD M(0x103)
+LOAD M(0x103)
 DIV M(0x102)
-LMQ
+LDMQ
 ADD M(0x102)
 RSH
-ST M(0x102)
+STR M(0x102)
+# ---------------------------
+# ---------------------------
+# Computar X' e salvar em X
+# X'= (X + (Y/X)) / 2
+LOAD M(0x103)
+DIV M(0x102)
+LDMQ
+STM M(0x102)
+STM M(0x102)
+RSH
+STR M(0x102)
 # ---------------------------
 # ---------------------------
 

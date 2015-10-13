@@ -3,16 +3,17 @@
 ; teste10.s do Edson Borin - 2013
 
 Aqui:
-	LMQM M(0x102)
+	LDMQM M(0x102)
+outro:
 	MUL M(0x103) #blablabla
-	LMQ
-	ST M(0x102)
-	LD M(0x103)
+	LDMQ
+	STr M(0x102)
+	LoaD M(0x103)
 	ADD M(0x101)
-	ST M(0x103)
-	LD M(0x100)
-	SUB M(0x103)
-	JMPP M(Aqui)
+	STr M(0x103)
+	LoaD M(0x100)
+	SuB M(0x103)
+	JMP M(outro)
 
 
 .org 0x100

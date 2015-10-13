@@ -1,1 +1,9 @@
-.teste
+Teste:
+	MUL M(0x103) #blablabla
+
+	LDMQ
+	#STr M(0x102)
+
+	JGEZ M(teste2)
+Teste2:
+	JGEZ M(teste)
