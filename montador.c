@@ -76,11 +76,11 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			strcat(linha_hex, " ");
 		}
 
+		//verifica se é instrucao e escreve o codigo com o endereco da instrucao no .hex
 		if (instrucao != 0)
 		{
 			if (enderecoValido(tokens[i+1], endereco))
 			{
-				// strcpy(endereco, tokens[i+1]);
 				traduzir(instrucao, endereco, posicaoAtual.a_direita, codigo);
 				strcat(linha_hex, codigo);
 
@@ -106,13 +106,15 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			}
 
 		}
-		else 
-			if (rotuloValido(uma_linha))
+		// verifica se é rotulo
+		else if (rotuloValido(uma_linha))
 		{
 			printf("%s é um rotulo \n", uma_linha);
 		}
+		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
+			//TODO: verificar qual diretiva é e chamar o metodo correspondente
 			printf("%s é uma diretiva valida\n", uma_linha);
 		}
 		else printf("%s nao é um token valido\n", uma_linha);
@@ -160,8 +162,9 @@ int enderecoValido(char *token, char *endereco)
 	}
 	else if (rotuloValido(token))
 	{
+		//TODO
 		//acharRotulo()
-		//copiar endereco em endereco
+		//copiar endereco do rotulo em endereco
 	}
 	else if(token[0] == 'M')
 	{
