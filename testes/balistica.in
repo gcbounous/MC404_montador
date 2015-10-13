@@ -140,7 +140,8 @@ STR M(0x102)
 LOAD M(0x103)
 DIV M(0x102)
 LDMQ
-ADD M(0x102)
+STM M(0x102)
+STM M(0x102)
 RSH
 STR M(0x102)
 # ---------------------------

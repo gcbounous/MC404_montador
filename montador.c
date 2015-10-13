@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
 
 	recuperarRotulos(vetorTokens, rotulos);
 
+	preencherRotulos(vetorTokens, rotulos);
+
 	interpretar(nomeSemSufixo, vetorTokens, rotulos);
 
 	free(nomeSemSufixo);
@@ -85,21 +87,30 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 
 		//verifica se é instrucao e escreve o codigo com o endereco da instrucao no .hex
 		if (instrucao != 0)
-		{				
-			if (enderecoValido(tokens[i+1], endereco, rotulos))
+		{
+			int resposta_endereco = enderecoValido(tokens[i+1], endereco, rotulos);
+			if (resposta_endereco == 1)
 			{				
-				traduzir(instrucao, endereco, posicaoAtual.a_direita, codigo);
+				traduzir(instrucao, endereco, 0, codigo);
 				strcat(linha_hex, codigo);
 				i++;
-
+			}
+			//caso o endereco seja um rotulo enderecoValido retorna 2 e podemos recuperar o a_direita do rotulo
+			else if(resposta_endereco == 2)
+			{
+				int r = estaEmRotulos(tokens[i+1]+2, rotulos);
+				if(r != -1)
+				{
+					traduzir(instrucao, endereco, rotulos[r].a_direita, codigo);
+					strcat(linha_hex, codigo);
+					i++;
+				} else printf("o rotulo %s nao existe.\n", tokens[i+1]);
 			}
 			else
 			{
-				traduzir(instrucao, "000", posicaoAtual.a_direita, codigo);
+				traduzir(instrucao, "000", 0, codigo);
 				strcat(linha_hex, codigo);
 			}
-			// printf("%s é uma instrucao \n", uma_linha);
-			// printf("%s\n", linha_hex);
 
 			if(posicaoAtual.a_direita == 0)
 			{
@@ -116,7 +127,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		// verifica se é rotulo
 		else if (rotuloValido(uma_linha))
 		{
-			printf("%s é um rotulo \n", uma_linha);
+			//se for um rotulo a gente ignora
 		}
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
@@ -125,6 +136,14 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			printf("%s é uma diretiva valida\n", uma_linha);
 		}
 		else printf("%s nao é um token valido\n", uma_linha);
+
+		//para a ultima istrucao, completa a linha
+		if(strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1)
+		{
+			strcat(linha_hex, "00 000");
+			fprintf(arq_saida, "%s\n",linha_hex );
+		}
+
 		i++;
 	}
 
@@ -132,6 +151,60 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	free(linha_hex);
 	free(codigo);
 	free(posicao);
+}
+
+void preencherRotulos(char **tokens, Rotulo rotulos[])
+{
+	char uma_linha[100];
+
+	Posicao posicaoAtual;
+	posicaoAtual.pos = 0;
+	posicaoAtual.a_direita = 0;
+
+	int i = 0;
+	while (strcmp(tokens[i],"") != 0)
+	{
+		strcpy(uma_linha, tokens[i]);
+
+		int instrucao = istrucaoValida(uma_linha);
+
+		//verifica se é instrucao e escreve o codigo com o endereco da instrucao no .hex
+		if (instrucao != 0)
+		{
+			if(posicaoAtual.a_direita == 0)
+			{
+				posicaoAtual.a_direita = 1;
+			}
+			else
+			{
+				posicaoAtual.a_direita = 0;
+				posicaoAtual.pos++;
+			}
+		}
+		// verifica se é rotulo
+		else if (rotuloValido(uma_linha))
+		{
+			int j;
+			for(j = 0; j < 50; j++)
+			{
+				if(strncmp(rotulos[j].nome, uma_linha, strlen(uma_linha)-1) == 0 && strlen(uma_linha)-1 == strlen(rotulos[j].nome))
+				{
+					rotulos[j].endereco = posicaoAtual.pos;
+					rotulos[j].a_direita = posicaoAtual.a_direita;
+					break;
+				}
+			}
+		}
+		//verifica se é diretiva
+		else if (diretivaValida(uma_linha))
+		{
+			//TODO: verificar qual diretiva é e chamar o metodo correspondente
+			printf("%s é uma diretiva valida\n", uma_linha);
+		}
+
+		i++;
+	}
+
 }
 
 //Metodo retorna codigo do mnemonico(associado ao enum) se instrucao existir
@@ -181,12 +254,12 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 			i++;
 		}
 
-		if (rotuloValido(token))
+		i = estaEmRotulos(token, rotulos);
+		if (i != -1)
 		{
-			int pos = getEnderecoRotulo(token, rotulos);
-			if (pos != -1)
-				formatarPos(pos, endereco);
-			else printf("%s nao é um rotulo valido.\n", token);
+			formatarPos(rotulos[i].endereco, endereco);
+			//se rotulo valido retorna 2
+			return 2;
 		}
 		else
 		{
@@ -196,6 +269,7 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 	}
 	else
 		return 0;
+	//endereco valido 
 	return 1;
 }
 
@@ -218,14 +292,37 @@ void formatarPos(int pos, char *s_pos)
 	free(prefixo);
 }
 
+//retorna o endereco do rotulo achado
 int getEnderecoRotulo(char *rotulo, Rotulo rotulos[])
+{
+	int i = estaEmRotulos(rotulo, rotulos);
+	if(i != -1)
+	{
+		return rotulos[i].endereco;
+	}
+	return -1;
+}
+
+//retorna se rotulo esta a direita ou nao
+int getDireitaRotulo(char *rotulo, Rotulo rotulos[])
+{
+	int i = estaEmRotulos(rotulo, rotulos);
+	if(i != -1)
+	{
+		return rotulos[i].a_direita;
+	}
+	return -1;
+}
+
+//se estiver em rotulos[] retorna o indice, senao retorna -1
+int estaEmRotulos(char *rotulo, Rotulo rotulos[])
 {
 	int i;
 	for(i = 0; strcmp(rotulos[i].nome,"") != 0 && i<50; i++ )
 	{
-		if(strcmp(rotulos[i].nome, rotulo) == 0)
+		if(strncmp(rotulos[i].nome, rotulo, strlen(rotulos[i].nome)) == 0 && strlen(rotulos[i].nome) == strlen(rotulo))
 		{
-			return rotulos[i].endereco;
+			return i;
 		}
 	}
 	return -1;
