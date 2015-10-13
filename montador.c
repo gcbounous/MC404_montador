@@ -5,7 +5,7 @@
 #include "rotulo.h"
 #include "retornaTokens.h"
 #include "tradutor.h"
-
+#include "diretivas.h"
 
 
 int main(int argc, char *argv[])
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 		strcpy(nomeArqOut, argv[2]);
 		retornaTokens(argv[1], nomeArqOut);
 	}
-	
+
 	strcpy(nomeSemSufixo, nomeArqOut);
 	strcat(nomeArqOut, ".out");
 	recuperarRotulos(nomeArqOut, rotulos);
