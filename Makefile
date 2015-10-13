@@ -1,5 +1,5 @@
-all: montador.o retornaTokens.o rotulo.o tradutor.o
-	gcc montador.o retornaTokens.o rotulo.o tradutor.o -o montador
+all: montador.o retornaTokens.o rotulo.o tradutor.o diretiva.o
+	gcc montador.o retornaTokens.o rotulo.o tradutor.o diretiva.o -o montador
 
 retornaTokens.o: retornaTokens.c
 	gcc -c -Wall retornaTokens.c 
@@ -12,6 +12,9 @@ rotulo.o: rotulo.c
 
 tradutor.o: tradutor.c
 	gcc -c -Wall tradutor.c
+
+diretiva.o: diretiva.c
+	gcc -c -Wall diretiva.c
 
 clean:
 	rm *.o *.out montador

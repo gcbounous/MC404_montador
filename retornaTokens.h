@@ -1,7 +1,7 @@
 #ifndef RETORNATOKENS_H_   
 #define RETORNATOKENS_H_
 
-void retornaTokens(char *nomeArqIn, char *nomeArqOut);
+char** retornaTokens(char *nomeArqIn, char **vet_tokens);
 char* limpaNomeArquivo(char *nomeCompleto);
 
 #endif

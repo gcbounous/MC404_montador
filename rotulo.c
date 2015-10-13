@@ -5,16 +5,13 @@
 
 #include "rotulo.h"
 
-void recuperarRotulos(char *arquivo, Rotulo rotulos[])
+void recuperarRotulos(char **tokens, Rotulo rotulos[])
 {
-	FILE *arq_stream;
 	char uma_linha[100];
-
-	arq_stream = fopen(arquivo, "r");
-
 	int i = 0;
-	while( fgets (uma_linha , 100 , arq_stream) != NULL ) //recupera a linha e grava em uma_linha
+	while (strcmp(tokens[i],"") != 0)
 	{
+		strcpy(uma_linha, tokens[i]);
 		if (rotuloValido(uma_linha))
 		{
 			int j = 0;
@@ -23,6 +20,7 @@ void recuperarRotulos(char *arquivo, Rotulo rotulos[])
 				rotulos[i].nome[j] = uma_linha[j];
 				j++;
 			}
+			printf("%s\n", rotulos[i].nome);
 		}
 		i++;
 	}
@@ -41,7 +39,7 @@ int rotuloValido(char* token)
 			}
 			else if(token[i] == ':')
 			{
-				if(i+2 == strlen(token))
+				if(i+1 == strlen(token))
 				{
 					return 1;
 				}

@@ -10,7 +10,7 @@ struct Rotulo
 };
 typedef struct Rotulo Rotulo;
 
-void recuperarRotulos(char *arquivo, Rotulo rotulos[]);
+void recuperarRotulos(char **tokens, Rotulo rotulos[]);
 int rotuloValido(char* token);
 
 #endif

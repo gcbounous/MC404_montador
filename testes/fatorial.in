@@ -11,7 +11,7 @@ Aqui:
 	ADD M(0x101)
 	ST M(0x103)
 	LD M(0x100)
-	SUB M(0x103)
+	SuB M(0x103)
 	JMPP M(Aqui)
 
 
