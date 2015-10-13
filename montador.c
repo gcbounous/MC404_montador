@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	{
 		printf("Lançar o programa no formato:\n\t./montador arquivo_de_entrada [arquivo_de_saida]\n");
 		return 0;
-	}
+	} 
 	else if( argc == 2)
 	{
 		strcpy(nomeSemSufixo, argv[1]);
