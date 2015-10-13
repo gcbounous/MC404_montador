@@ -43,6 +43,12 @@ int main(int argc, char *argv[])
 	interpretar(nomeSemSufixo, vetorTokens, rotulos);
 
 	free(nomeSemSufixo);
+	for(i = 0; i<10000; i++)
+	{
+		free(vetorTokens[i]);
+	}
+	free(vetorTokens);
+
     return 0;
 }
 
@@ -70,6 +76,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		int instrucao = istrucaoValida(uma_linha);
 		formatarPos(posicaoAtual.pos, posicao);
 
+		//coloca o endereco de memoria na linha a ser imprimida
 		if(posicaoAtual.a_direita == 0)
 		{
 			strcpy(linha_hex, posicao);
@@ -78,11 +85,12 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 
 		//verifica se é instrucao e escreve o codigo com o endereco da instrucao no .hex
 		if (instrucao != 0)
-		{
-			if (enderecoValido(tokens[i+1], endereco))
-			{
+		{				
+			if (enderecoValido(tokens[i+1], endereco, rotulos))
+			{				
 				traduzir(instrucao, endereco, posicaoAtual.a_direita, codigo);
 				strcat(linha_hex, codigo);
+				i++;
 
 			}
 			else
@@ -90,8 +98,8 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 				traduzir(instrucao, "000", posicaoAtual.a_direita, codigo);
 				strcat(linha_hex, codigo);
 			}
-			printf("%s é uma instrucao \n", uma_linha);
-			printf("%s\n", linha_hex);
+			// printf("%s é uma instrucao \n", uma_linha);
+			// printf("%s\n", linha_hex);
 
 			if(posicaoAtual.a_direita == 0)
 			{
@@ -104,7 +112,6 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 				posicaoAtual.pos++;
 				fprintf(arq_saida, "%s\n",linha_hex );
 			}
-
 		}
 		// verifica se é rotulo
 		else if (rotuloValido(uma_linha))
@@ -153,29 +160,42 @@ int istrucaoValida(char *token)
     return m;
 }
 
-int enderecoValido(char *token, char *endereco)
+int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 {
 	if(isdigit(token[0]) && token[1] == 'X')
 	{	
 		token += 2;
 		strcpy(endereco, token);
 	}
-	else if (rotuloValido(token))
-	{
-		//TODO
-		//acharRotulo()
-		//copiar endereco do rotulo em endereco
-	}
 	else if(token[0] == 'M')
 	{
-		int i ;
-		for(i = 4; i < 7; i++)
+		token +=2;
+		int i = 0 ;
+		while(token[i]!='\0')
+		{			
+			if(token[i] == ')')
+			{
+				token[i] = '\0';
+				break;
+			}
+			i++;
+		}
+
+		if (rotuloValido(token))
 		{
-			endereco[i-4] = token[i];
+			int pos = getEnderecoRotulo(token, rotulos);
+			if (pos != -1)
+				formatarPos(pos, endereco);
+			else printf("%s nao é um rotulo valido.\n", token);
+		}
+		else
+		{
+			token += 2;
+			strcpy(endereco, token);
 		}
 	}
-	else return 0;
-
+	else
+		return 0;
 	return 1;
 }
 
@@ -196,4 +216,17 @@ void formatarPos(int pos, char *s_pos)
 		strcpy(s_pos, prefixo);
 	}
 	free(prefixo);
+}
+
+int getEnderecoRotulo(char *rotulo, Rotulo rotulos[])
+{
+	int i;
+	for(i = 0; strcmp(rotulos[i].nome,"") != 0 && i<50; i++ )
+	{
+		if(strcmp(rotulos[i].nome, rotulo) == 0)
+		{
+			return rotulos[i].endereco;
+		}
+	}
+	return -1;
 }

@@ -18,7 +18,6 @@ char* traduzir(int mnemonico, char* endereco, int a_direita, char *codigo)
 	switch(mnemonico)
 	{
 		case LDMQ:
-			printf("entrou\n");
 			return retornaCodigoLDMQ(codigo);		
 		case LDMQM:
 			return retornaCodigoLDMQM(codigo, endereco);

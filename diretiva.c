@@ -13,4 +13,5 @@ int diretivaValida(char *token)
 			return 1;
 	}
 	return 0;
-}	
+}
+

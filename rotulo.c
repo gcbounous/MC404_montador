@@ -20,7 +20,6 @@ void recuperarRotulos(char **tokens, Rotulo rotulos[])
 				rotulos[i].nome[j] = uma_linha[j];
 				j++;
 			}
-			printf("%s\n", rotulos[i].nome);
 		}
 		i++;
 	}

@@ -17,4 +17,4 @@ diretiva.o: diretiva.c
 	gcc -c -Wall diretiva.c
 
 clean:
-	rm *.o *.out montador
+	rm *.o */*.hex montador
