@@ -5,7 +5,6 @@
 #include "diretivas.h"
 
 int trataDiretivas(FILE *arq, Posicao posicaoAtual, Diretiva diretivas[], FILE *hex){
-    int i, n;
     char token[101], diretiva[101];
     char arg1[101], arg2[101];
 
@@ -70,7 +69,7 @@ int diretivaSet(char *arg1, char *arg2, Diretiva diretivas[]){
 }
 
 int diretivaOrg(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
-    int i, n;
+    int n;
 
     if(mnemonicos(arg))
         return 0;
@@ -113,7 +112,7 @@ int diretivaWord(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
 }
 
 int diretivaAlign(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
-    int i, n;
+    int n;
     /* se for um nome, procura no vetor de diretivas */
     if(mnemonicos(arg))
         return 0;
