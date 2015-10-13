@@ -21,6 +21,10 @@ int main(int argc, char *argv[])
 	char *nomeArqOut = (char *) malloc(100);
 	char *nomeSemSufixo = (char *) malloc(100);
 	Rotulo rotulos[50];
+	Diretiva diretivas[1000];
+	Posica posicaoAtual;
+	posicaoAtual.linha = 0;
+    posicaoAtual.direita = 0;
 
 	//tratamento caso tenha o nome do arquivo de saida ou nao
 	if( argc < 2)
