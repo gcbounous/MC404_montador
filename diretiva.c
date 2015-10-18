@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "diretiva.h"
 
@@ -8,13 +9,98 @@ int diretivaValida(char *token)
 {
 	if(token[0] == '.')
 	{
+		MnemonicoDiretiva mnemD;
 		token += 1;
-		if ( strncmp(token,"ORG", strlen("ORG")) == 0 || strncmp(token,"WORD", strlen("WORD")) == 0 || strncmp(token,"SET", strlen("SET")) == 0 || strncmp(token,"FILL", strlen("FILL")) == 0 || strncmp(token,"ALIGN", strlen("ALIGN")) == 0)
-			return 1;
+		if ( strncmp(token,"ORG", strlen("ORG")) == 0){mnemD = ORG;}
+		else if (strncmp(token,"WORD", strlen("WORD")) == 0){mnemD = WORD;}
+		else if (strncmp(token,"SET", strlen("SET")) == 0){mnemD = SET;}
+		else if (strncmp(token,"WFILL", strlen("WFILL")) == 0){mnemD = WFILL;}
+		else if (strncmp(token,"ALIGN", strlen("ALIGN")) == 0){mnemD = ALIGN;}
+		return mnemD;
 	}
 	return 0;
 }
 
+/* Metodo que acha a diretiva a ser tratada e a aplica mudando a tabela de variaveis e a posicaoAtual
+* Retorna a quantidade de tokens a ser saltado de acordo com a quantidade de argumentos usados pela diretiva
+*/
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual)
+{	
+	int salto = 0; //quantidade de linhas a saltar (argumentos 1 e 2 caso forem solicitado)
+	MnemonicoDiretiva mnemD = diretivaValida(token);
+
+	switch (mnemD)
+	{
+		case ORG:
+			if(diretivaOrg(arg1, var_setadas, posicaoAtual))
+			{
+				salto += 1;
+			}
+			break;
+		case WORD:
+
+			break;
+		case SET:
+
+			break;
+		case WFILL:
+
+			break;
+		case ALIGN:
+
+			break;
+		default:
+				//TODO: erro diretiva inexistente (caso mnemD = 0)
+			break;
+	}
+	return salto;
+}
+
+int diretivaOrg(char *arg, DiretivaSet *diretivas, Posicao *posicaoAtual)
+{
+	arg += 2;
+	int arg_int = strtol(arg, NULL, 10);
+	if (strncmp(arg,"000", strlen(arg)) == 0)
+	{
+		posicaoAtual->pos = 0;
+		posicaoAtual->a_direita = 0;
+		return 1;
+	}
+    else if (arg_int > 0)
+    {
+		posicaoAtual->pos = arg_int;
+		posicaoAtual->a_direita = 0;
+		return 1;
+    }
+    else
+    {
+    	//TODO: testar recebimento de variavel setada
+    	int end_dir = getDiretivaSetada( arg, diretivas);
+    	if (end_dir != -1)
+    	{
+    		posicaoAtual->pos = end_dir;
+    		posicaoAtual->a_direita = 0;
+    		return 1;
+    	}
+    }
+    //TODO: erro, endereco invalido
+    return 0;
+}
+
+int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *diretivas)
+{
+	int i = 0;
+	while(strcmp(diretivas[i].nome, "") == 0)
+	{
+		if(strlen(nomeDiretiva) == strlen(diretivas[i].nome) && strcmp(diretivas[i].nome, nomeDiretiva) == 0)
+		{
+			return strtol(diretivas[i].valor, NULL, 10);
+		}
+		i++;
+	}
+	//TODO: erro, varialvel nao setada
+	return -1;
+}
 
 // int trataDiretivas(FILE *arq, Posicao posicaoAtual, Diretiva diretivas[], FILE *hex){
 //     char token[101], diretiva[101];
@@ -80,20 +166,7 @@ int diretivaValida(char *token)
 //     return 1; /* caso de certo */
 // }
 
-// int diretivaOrg(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
-//     int n;
 
-//     if(mnemonicos(arg))
-//         return 0;
-//     /* trasnforma o arg em um numero */
-//     sscanf(arg, "%d", &n);
-//     if(n > 0)
-//         /* faz o set da posicao, onde deve comecar a escrever */
-//         posicaoAtual.linha += n;
-//     else
-//         return 0;
-//     return 1;
-// }
 
 // int diretivaWord(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
 //     int i, achou = 0, n;

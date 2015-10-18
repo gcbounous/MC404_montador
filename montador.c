@@ -98,10 +98,10 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			//caso o endereco seja um rotulo enderecoValido retorna 2 e podemos recuperar o a_direita do rotulo
 			else if(resposta_endereco == 2)
 			{
-				int r = estaEmRotulos(tokens[i+1]+2, rotulos);
-				if(r != -1)
+				int dir_rotulo = getDireitaRotulo(tokens[i+1]+2, rotulos);
+				if(dir_rotulo != -1)
 				{
-					traduzir(instrucao, endereco, rotulos[r].a_direita, codigo);
+					traduzir(instrucao, endereco, dir_rotulo, codigo);
 					strcat(linha_hex, codigo);
 					i++;
 				} else printf("o rotulo %s nao existe.\n", tokens[i+1]);
@@ -132,13 +132,13 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			//TODO: verificar qual diretiva é e chamar o metodo correspondente
-			//printf("%s é uma diretiva valida\n", uma_linha);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual);
+			printf("%s é uma diretiva valida, posicaoAtual: %d, %d\n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 		}
 		// else printf("%s nao é um token valido\n", uma_linha);
 
-		//para a ultima istrucao, completa a linha
-		if(strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1)
+		//para a ultima istrucao, completa a linha ou para completar uma linha depois de um .org
+		if((strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1) ||( (int)strlen(linha_hex) == 11 && posicaoAtual.a_direita == 0))
 		{
 			strcat(linha_hex, "00 000");
 			fprintf(arq_saida, "%s\n",linha_hex );
@@ -156,6 +156,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 void preencherRotulos(char **tokens, Rotulo rotulos[])
 {
 	char uma_linha[100];
+	//TODO: fazer!!! DiretivaSet *var_setadas
 
 	Posicao posicaoAtual;
 	posicaoAtual.pos = 0;
@@ -198,8 +199,7 @@ void preencherRotulos(char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			//TODO: verificar qual diretiva é e chamar o metodo correspondente
-			printf("%s é uma diretiva valida\n", uma_linha);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual);
 		}
 
 		i++;
@@ -211,23 +211,23 @@ void preencherRotulos(char **tokens, Rotulo rotulos[])
 int istrucaoValida(char *token)
 {
 	Mnemonico m;
-	if(strncmp(token, "LDMQM", strlen("LDMQM")) == 0){ m = LDMQM;}
-    else if(strncmp(token, "LDMQ", strlen("LDMQ")) == 0){ m = LDMQ;}
-    else if(strncmp(token, "STR", strlen("STR")) == 0){ m = STR;}
-    else if(strncmp(token, "LOAD", strlen("LOAD")) == 0){ m = LOAD;}
-    else if(strncmp(token, "LDN", strlen("LDN")) == 0){ m = LDN;}
-    else if(strncmp(token, "LDABS", strlen("LDABS")) == 0){ m = LDABS;}
-    else if(strncmp(token, "JMP", strlen("JMP")) == 0){ m = JMP;}
-    else if(strncmp(token, "JGEZ", strlen("JGEZ")) == 0){ m = JGEZ;}
-    else if(strncmp(token, "ADDABS", strlen("ADDABS")) == 0){ m = ADDABS;}
-    else if(strncmp(token, "ADD", strlen("ADD")) == 0){ m = ADD;}
-    else if(strncmp(token, "SUBABS", strlen("SUBABS")) == 0){ m = SUBABS;}
-    else if(strncmp(token, "SUB", strlen("SUB")) == 0){ m = SUB;}
-    else if(strncmp(token, "MUL", strlen("MUL")) == 0){ m = MUL;}
-    else if(strncmp(token, "DIV", strlen("DIV")) == 0){ m = DIV;}
-    else if(strncmp(token, "LSH", strlen("LSH")) == 0){ m = LSH;}
-    else if(strncmp(token, "RSH", strlen("RSH")) == 0){ m = RSH;}
-    else if(strncmp(token, "STM", strlen("STM")) == 0){ m = STM;}
+	if(strncmp(token, "LDMQM", strlen("LDMQM")) == 0 && strlen("LDMQM") == strlen (token)){ m = LDMQM;}
+    else if(strncmp(token, "LDMQ", strlen("LDMQ")) == 0 && strlen("LDMQ") == strlen (token)){ m = LDMQ;}
+    else if(strncmp(token, "STR", strlen("STR")) == 0 && strlen("STR") == strlen (token)){ m = STR;}
+    else if(strncmp(token, "LOAD", strlen("LOAD")) == 0 && strlen("LOAD") == strlen (token)){ m = LOAD;}
+    else if(strncmp(token, "LDN", strlen("LDN")) == 0 && strlen("LDN") == strlen (token)){ m = LDN;}
+    else if(strncmp(token, "LDABS", strlen("LDABS")) == 0 && strlen("LDABS") == strlen (token)){ m = LDABS;}
+    else if(strncmp(token, "JMP", strlen("JMP")) == 0 && strlen("JMP") == strlen (token)){ m = JMP;}
+    else if(strncmp(token, "JGEZ", strlen("JGEZ")) == 0 && strlen("JGEZ") == strlen (token)){ m = JGEZ;}
+    else if(strncmp(token, "ADDABS", strlen("ADDABS")) == 0 && strlen("ADDABS") == strlen (token)){ m = ADDABS;}
+    else if(strncmp(token, "ADD", strlen("ADD")) == 0 && strlen("ADD") == strlen (token)){ m = ADD;}
+    else if(strncmp(token, "SUBABS", strlen("SUBABS")) == 0 && strlen("SUBABS") == strlen (token)){ m = SUBABS;}
+    else if(strncmp(token, "SUB", strlen("SUB")) == 0 && strlen("SUB") == strlen (token)){ m = SUB;}
+    else if(strncmp(token, "MUL", strlen("MUL")) == 0 && strlen("MUL") == strlen (token)){ m = MUL;}
+    else if(strncmp(token, "DIV", strlen("DIV")) == 0 && strlen("DIV") == strlen (token)){ m = DIV;}
+    else if(strncmp(token, "LSH", strlen("LSH")) == 0 && strlen("LSH") == strlen (token)){ m = LSH;}
+    else if(strncmp(token, "RSH", strlen("RSH")) == 0 && strlen("RSH") == strlen (token)){ m = RSH;}
+    else if(strncmp(token, "STM", strlen("STM")) == 0 && strlen("STM") == strlen (token)){ m = STM;}
     else
     	return 0;
     return m;
@@ -254,10 +254,10 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 			i++;
 		}
 
-		i = estaEmRotulos(token, rotulos);
-		if (i != -1)
+		int end = getEnderecoRotulo(token, rotulos);
+		if (end != -1)
 		{
-			formatarPos(rotulos[i].endereco, endereco);
+			formatarPos(end, endereco);
 			//se rotulo valido retorna 2
 			return 2;
 		}
@@ -268,7 +268,11 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 		}
 	}
 	else
+	{
+		// TODO: erro endereco nao valido
 		return 0;
+	}
+
 	//endereco valido 
 	return 1;
 }
