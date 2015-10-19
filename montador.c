@@ -60,6 +60,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	char *endereco = malloc(sizeof(char*));
 	char *dados = malloc(sizeof(char*)*sizeof(char*));
 	int flag_org = 0;
+	int flag_align = 0;
 
 	// VariavelSet variaveis[100];
 	Posicao posicaoAtual;
@@ -85,6 +86,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			strcpy(linha_hex, posicao);
 			strcat(linha_hex, " ");
 		}
+		printf("%s %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 
 		//verifica se é instrucao e escreve o codigo com o endereco da instrucao no .hex
 		if (instrucao != 0)
@@ -125,13 +127,14 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 				fprintf(arq_saida, "%s\n",linha_hex );
 			}
 			flag_org = 0;
+			flag_align = 0;
 		}
 		// verifica se é rotulo
 		else if (rotuloValido(uma_linha))
 		{
 			//se for um rotulo a gente ignora
 			flag_org = 0;
-		}
+			flag_align = 0;		}
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
@@ -140,22 +143,30 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			{
 				char *s_end_rot = malloc(sizeof(char*));
 				formatarPos(end_rot, s_end_rot);
-				i += trataDiretivas(uma_linha, s_end_rot, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org);
+
+				i += trataDiretivas(uma_linha, s_end_rot, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
 				free(s_end_rot);
 			}
 			else
 			{
-				i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org);
+				i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
 			}
 			printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 		}
-		else printf("%s nao é um token valido\n", uma_linha);
+		else printf("ERRO: %s nao é um token valido\n", uma_linha);
 
-		//para a ultima istrucao, completa a linha ou para completar uma linha depois de um .org
-		if((strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1) ||( (int)strlen(linha_hex) == 11 && posicaoAtual.a_direita == 0))
+		if((int)strlen(linha_hex) == 11 && flag_align)
 		{
-			strcat(linha_hex, "00 000");
-			fprintf(arq_saida, "%s\n",linha_hex );
+			if(flag_align)
+			{
+				strcat(linha_hex, "00 000");
+				fprintf(arq_saida, "%s\n",linha_hex );
+			}
+		}
+
+		if((strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1))
+		{
+			//TODO: erro, dados nao alinhados. (Pense em usar a diretiva .align)
 		}
 
 		i++;
@@ -177,6 +188,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 {
 	int flag_org = 0;
+	int flag_align = 0;
 	char uma_linha[100];
 	//TODO: fazer!!! DiretivaSet *var_setadas
 
@@ -206,6 +218,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 				posicaoAtual.pos++;
 			}
 			flag_org = 0;
+			flag_align = 0;
 		}
 		// verifica se é rotulo
 		else if (rotuloValido(uma_linha))
@@ -218,6 +231,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 					rotulos[j].endereco = posicaoAtual.pos;
 					rotulos[j].a_direita = posicaoAtual.a_direita;
 					flag_org = 0;
+					flag_align = 0;
 					break;
 				}
 			}
@@ -225,7 +239,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL, &flag_org);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL, &flag_org, &flag_align);
 		}
 		i++;
 	}

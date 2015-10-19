@@ -4,9 +4,9 @@ Teste:
 	JGEZ M(teste2)
 	LDMQ
 	STr M(0x102)
-.org 0x045
 Teste2:
 	JGEZ M(teste)
+	.align 1
 	#STr M(0x106)
 
 

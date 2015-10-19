@@ -24,7 +24,7 @@ int diretivaValida(char *token)
 /* Metodo que acha a diretiva a ser tratada e a aplica mudando a tabela de variaveis e a posicaoAtual
 * Retorna a quantidade de tokens a ser saltado de acordo com a quantidade de argumentos usados pela diretiva
 */
-int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual, char *dados, int *flag_org)
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual, char *dados, int *flag_org, int *flag_align)
 {	
 	int salto = 0; //quantidade de linhas a saltar (argumentos 1 e 2 caso forem solicitado)
 	MnemonicoDiretiva mnemD = diretivaValida(token);
@@ -34,14 +34,15 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 			if(diretivaOrg(arg1, posicaoAtual))
 			{
 				*flag_org = 1;
+				*flag_align = 0;
 				salto += 1;
 			}
 			break;
 		case WORD:
-			printf("%s\n", arg1);
 			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados, *flag_org))
 			{
 				*flag_org = 0;
+				*flag_align = 0;
 				salto += 1;
 			}
 			break;
@@ -52,7 +53,12 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 
 			break;
 		case ALIGN:
-
+			if(diretivaAlign(arg1, posicaoAtual))
+			{
+				*flag_org = 0;
+				*flag_align = 1;
+				salto += 1;
+			}	
 			break;
 		default:
 				//TODO: erro diretiva inexistente (caso mnemD = 0)
@@ -70,13 +76,13 @@ int diretivaOrg(char *arg, Posicao *posicaoAtual)
 		if(strncmp(arg,"000", strlen(arg)) == 0)
 		{	
 			posicaoAtual->pos = 0;
-			posicaoAtual->a_direita = 0;
+			//posicaoAtual->a_direita = 0;
 			return 1;
 		}
 		else if (arg_int > 0)
     	{
 			posicaoAtual->pos = arg_int;
-			posicaoAtual->a_direita = 0;
+			// posicaoAtual->a_direita = 0;
 			return 1;
     	}
     	else
@@ -147,6 +153,19 @@ int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char
     	// }
 	}
     return 0;
+}
+
+int diretivaAlign(char *arg, Posicao *posicaoAtual)
+{
+    int arg_int = strtol(arg, NULL, 10);
+    if(arg_int == 1)
+	{
+		posicaoAtual->a_direita = 0;
+		return 1;
+	}
+	else
+		//TODO: erro, argumento nao valido
+	return 0;
 }
 
 int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *diretivas)
@@ -246,25 +265,6 @@ void formatarPos(int pos, char *s_pos)
 
 
 //     return 1; /* caso de certo */
-// }
-
-
-// int diretivaAlign(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
-//     int n;
-//     /* se for um nome, procura no vetor de diretivas */
-//     if(mnemonicos(arg))
-//         return 0;
-
-//     sscanf(arg, "%d", &n);
-//     if(n >= 0){
-//         /* pula n linhas e alinha a esquerda, escrevendo '0' no fim da linha atual */
-//         /* printa 0 na parte ainda nao preechida da linha */
-//         posicaoAtual.linha += n;
-//         posicaoAtual.direita = 0;
-//     }
-//     else
-//         return 0;
-//     return 1;
 // }
 
 
