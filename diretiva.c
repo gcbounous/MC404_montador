@@ -50,7 +50,12 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 
 			break;
 		case WFILL:
-
+			if(diretivaWfill(arg1, arg2, var_setadas, posicaoAtual, dados, *flag_org))
+			{
+				*flag_org = 0;
+				*flag_align = 0;
+				salto += 2;	
+			}
 			break;
 		case ALIGN:
 			if(diretivaAlign(arg1, posicaoAtual))
@@ -76,13 +81,11 @@ int diretivaOrg(char *arg, Posicao *posicaoAtual)
 		if(strncmp(arg,"000", strlen(arg)) == 0)
 		{	
 			posicaoAtual->pos = 0;
-			//posicaoAtual->a_direita = 0;
 			return 1;
 		}
 		else if (arg_int > 0)
     	{
 			posicaoAtual->pos = arg_int;
-			// posicaoAtual->a_direita = 0;
 			return 1;
     	}
     	else
@@ -168,6 +171,82 @@ int diretivaAlign(char *arg, Posicao *posicaoAtual)
 	return 0;
 }
 
+
+int diretivaWfill(char *arg1, char *arg2, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados, int flag_org)
+{
+	//TODO: erro de segmentacao com n grande de repeticoes
+	int repeticoes = strtol(arg1, NULL, 10);	
+	if(repeticoes > 0 && isdigit(arg2[0]))
+	{
+		if(dados != NULL)
+		{	
+			char *temp_valor = malloc(sizeof(char*));	
+			char *temp = malloc(sizeof(char*));		
+			if(arg2[0] == '0' && arg2[1] == 'X')
+			{				
+				arg2 += 2;				
+			}
+			if(!flag_org)
+				posicaoAtual->pos++;
+
+			if((int)strlen(arg2) == 3)
+			{
+				strcpy(temp_valor, " 00 00 00 0");
+				temp_valor[(int)strlen(temp_valor)] = arg2[0];
+				strcat(temp_valor, " ");
+				arg2 += 1;
+			}
+			else if((int)strlen(arg2) == 2)
+			{
+				strcpy(temp_valor, " 00 00 00 00 ");
+			}
+			else if((int)strlen(arg2) == 1)
+			{
+				strcpy(temp_valor, " 00 00 00 00 0");
+			}
+			else
+			{
+				// TODO: erro, constante nao valida
+				free(temp_valor);				
+				free(temp);
+				return 0;
+			}
+			strcat(temp_valor, arg2); 
+			strcat(temp_valor,"\n");
+
+			int i;
+			for(i = 0; i < repeticoes; i++)
+			{
+				formatarPos(posicaoAtual->pos, temp);
+				strcat(temp, temp_valor);
+				strcat(dados, temp);
+				posicaoAtual->pos++;
+			}
+			posicaoAtual->pos--;
+
+			free(temp_valor);
+			free(temp);
+		}
+		return 1;
+	}	
+	else
+	{
+		//TODO: testar recebimento de variavel setada
+    	// int end_dir = getDiretivaSetada( arg2, diretivas);
+    	// if (end_dir != -1)
+    	// {
+    	// 	posicaoAtual->pos = end_dir;
+    	// 	posicaoAtual->a_direita = 0;
+    	// 	return 1;
+    	// }
+    	// else
+    	// {
+    	// 	//TODO: erro, variavel nao existente
+    	// }
+	}
+    return 0;
+}
+
 int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *diretivas)
 {
 	int i = 0;
@@ -203,49 +282,8 @@ void formatarPos(int pos, char *s_pos)
 	free(prefixo);
 }
 
-// int trataDiretivas(FILE *arq, Posicao posicaoAtual, Diretiva diretivas[], FILE *hex){
-//     char token[101], diretiva[101];
-//     char arg1[101], arg2[101];
 
-//     while(fgets(token, 100, arq)){
-//         if(token[0] == '.'){
-//             sscanf(token, ".%s", diretiva);
-//             if(!strcmp(diretiva, "SET")){
-//                 fgets(arg1, 100, arq); /* le os argumentos para a diretiva */
-//                 fgets(arg2, 100, arq);
-//                 /* caso de errado */
-//                 if(!diretivaSet(arg1, arg2, diretivas))
-//                     return 0;
-//             }
-//             else if(!strcmp(diretiva, "ORG")){
-//                 fgets(arg1, 100, arq);
-//                 if(!diretivaOrg(arg1, diretivas, posicaoAtual))
-//                     return 0;
-//             }
-//             else if(!strcmp(diretiva, "WORD")){
-//                 fgets(arg1, 100, arq);
-//                 if(!diretivaWord(arg1, diretivas, posicaoAtual))
-//                     return 0;
-//             }
-//             else if(!strcmp(diretiva, "ALIGN")) {
-//                 fgets(arg1, 100, arq);
-//                 if(!diretivaAlign(arg1, diretivas, posicaoAtual))
-//                     return 0;
-//             }
-//             else if(!strcmp(diretiva, "WFILL")){
-//                 fgets(arg1, 100, arq);
-//                 fgets(arg2, 100, arq);
-//                 if(!diretivaWfill(arg1, arg2, diretivas, posicaoAtual))
-//                     return 0;
-//             }
-//         }
-
-//     }
-//     return 1;
-// }
-
-
-// int diretivaSet(char *arg1, char *arg2, Diretiva diretivas[]){
+// int diretivaSet(char *arg2, char *arg2, Diretiva diretivas[]){
 //     int i = 0, n;
 //     if(mnemonicos(arg1) || mnemonicos(arg2))
 //         return 0;
@@ -265,49 +303,5 @@ void formatarPos(int pos, char *s_pos)
 
 
 //     return 1; /* caso de certo */
-// }
-
-
-// int diretivaWfill(char *arg1, char *arg2, Diretiva diretivas[], Posicao posicaoAtual){
-// int i, achou = 0, n1, n2;
-//     /* argumento1 eh necessariamente um numero */
-//     /* argumento2 pode ser um nome, e se for procura no vetor */
-//     /*if(mnemonicos(arg1) || mnemonicos(arg2))
-//         return 0;*/
-
-//     if(isdigit(arg2[0])){
-//         for(i = 0; i < 1000 && !achou; i++)
-//             if(!strcmp(arg2, diretivas[i].nome)){
-//                 sscanf(arg2, "%d", &n2);
-//                 achou = 1;
-//                 break;
-//             }
-//         if(!achou)
-//             return 0;
-//     }
-//     else
-//         sscanf(arg2, "%d", &n2);
-
-//     sscanf(arg1, "%d", &n1);
-//     for(i = 0; i < n1; i++){
-//         /* printa no arquivo hex a linha(posicaoAtual) e o valor de n2 */
-//         posicaoAtual.linha++;
-//     }
-//     return 1;
-// }
-
-
-
-// int mnemonicos(char *token){
-//     if(!(strcmp(token, "LDMQ")) || !(strcmp(token, "LDMQM")) || !(strcmp(token, "STR"))
-//        || !(strcmp(token, "LOAD")) || !(strcmp(token, "LDN")) || !(strcmp(token, "LDABS"))
-//        || !(strcmp(token, "JMP")) || !(strcmp(token, "JGEZ")) || !(strcmp(token, "ADD"))
-//        || !(strcmp(token, "ADDABS")) || !(strcmp(token, "SUB")) || !(strcmp(token, "SUBABS"))
-//        || !(strcmp(token, "MUL")) || !(strcmp(token, "DIV")) || !(strcmp(token, "LSH"))
-//        || !(strcmp(token, "RSH")) || !(strcmp(token, "STM")))
-//             return 0;
-
-//     return 1;
-
 // }
 

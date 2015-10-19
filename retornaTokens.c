@@ -29,7 +29,7 @@ char** retornaTokens(char *nomeArqIn, char **vet_tokens){
             /* escreve o token */
             strcpy(vet_tokens[i], token);
             // printf("%s\n", vet_tokens[i]);
-            token = strtok(NULL," \t\n");
+            token = strtok(NULL," ,\t\n");
             i++;
         }
     }

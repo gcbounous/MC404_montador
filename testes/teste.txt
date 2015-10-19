@@ -10,9 +10,11 @@ Teste2:
 	#STr M(0x106)
 
 
-.word
+.word 
 0x111
 .org 0x225
 .word 0x69
 .word teste2
+
+.wfill 100, 5
 

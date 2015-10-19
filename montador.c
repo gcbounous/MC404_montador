@@ -58,7 +58,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	char *codigo = malloc(sizeof(char*));
 	char *posicao = malloc(sizeof(char*));
 	char *endereco = malloc(sizeof(char*));
-	char *dados = malloc(sizeof(char*)*sizeof(char*));
+	char *dados = malloc(sizeof(char*)*1000);
 	int flag_org = 0;
 	int flag_align = 0;
 
@@ -138,13 +138,22 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			int end_rot = getEnderecoRotulo(tokens[i+1], rotulos);
-			if(end_rot != -1)
+			int end_rot_var1 = getEnderecoRotulo(tokens[i+1], rotulos);
+			int end_rot_var2 = getEnderecoRotulo(tokens[i+1], rotulos);
+			if(end_rot_var1 != -1)
 			{
 				char *s_end_rot = malloc(sizeof(char*));
-				formatarPos(end_rot, s_end_rot);
+				formatarPos(end_rot_var1, s_end_rot);
 
 				i += trataDiretivas(uma_linha, s_end_rot, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
+				free(s_end_rot);
+			}
+			else if(end_rot_var2 != -1)
+			{
+				char *s_end_rot = malloc(sizeof(char*));
+				formatarPos(end_rot_var1, s_end_rot);
+
+				i += trataDiretivas(uma_linha, tokens[i+1], s_end_rot, NULL, &posicaoAtual, dados, &flag_org, &flag_align);
 				free(s_end_rot);
 			}
 			else
