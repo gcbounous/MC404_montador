@@ -24,11 +24,10 @@ int diretivaValida(char *token)
 /* Metodo que acha a diretiva a ser tratada e a aplica mudando a tabela de variaveis e a posicaoAtual
 * Retorna a quantidade de tokens a ser saltado de acordo com a quantidade de argumentos usados pela diretiva
 */
-int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual)
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual, char *dados)
 {	
 	int salto = 0; //quantidade de linhas a saltar (argumentos 1 e 2 caso forem solicitado)
 	MnemonicoDiretiva mnemD = diretivaValida(token);
-
 	switch (mnemD)
 	{
 		case ORG:
@@ -38,7 +37,10 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 			}
 			break;
 		case WORD:
-
+			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados))
+			{
+				salto += 1;
+			}
 			break;
 		case SET:
 
@@ -60,30 +62,98 @@ int diretivaOrg(char *arg, DiretivaSet *diretivas, Posicao *posicaoAtual)
 {
 	arg += 2;
 	int arg_int = strtol(arg, NULL, 10);
-	if (strncmp(arg,"000", strlen(arg)) == 0)
+	if (strlen(arg) == strlen("000"))
 	{
-		posicaoAtual->pos = 0;
-		posicaoAtual->a_direita = 0;
-		return 1;
+		if(strncmp(arg,"000", strlen(arg)) == 0)
+		{	
+			posicaoAtual->pos = 0;
+			posicaoAtual->a_direita = 0;
+			return 1;
+		}
+		else if (arg_int > 0)
+    	{
+			posicaoAtual->pos = arg_int;
+			posicaoAtual->a_direita = 0;
+			return 1;
+    	}
+    	else
+    	{
+    		//TODO: erro, endereco invalido 
+    	}
 	}
-    else if (arg_int > 0)
-    {
-		posicaoAtual->pos = arg_int;
-		posicaoAtual->a_direita = 0;
-		return 1;
-    }
     else
     {
     	//TODO: testar recebimento de variavel setada
-    	int end_dir = getDiretivaSetada( arg, diretivas);
-    	if (end_dir != -1)
-    	{
-    		posicaoAtual->pos = end_dir;
-    		posicaoAtual->a_direita = 0;
-    		return 1;
-    	}
+    	// int end_dir = getDiretivaSetada( arg, diretivas);
+    	// if (end_dir != -1)
+    	// {
+    	// 	posicaoAtual->pos = end_dir;
+    	// 	posicaoAtual->a_direita = 0;
+    	// 	return 1;
+    	// }
+    	// else
+    	// {
+    	// 	//TODO: erro, variavel nao existente
+    	// }
     }
-    //TODO: erro, endereco invalido
+    return 0;
+}
+
+int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados)
+{
+	char *temp = malloc(sizeof(char*));
+	if(arg[0] == '0' && arg[1] == 'X')
+	{
+		if(dados != NULL)
+		{
+			arg += 2;
+
+			formatarPos(posicaoAtual->pos, temp);
+			strcat(dados, temp);
+
+			if((int)strlen(arg) == 3)
+			{
+				strcat(dados, " 00 00 00 0");
+				dados[(int)strlen(dados)] = arg[0];
+				strcat(dados, " ");
+				arg += 1;
+			}
+			else if((int)strlen(arg) == 2)
+			{
+				strcat(dados, " 00 00 00 00 ");
+			}
+			else if((int)strlen(arg) == 1)
+			{
+				strcat(dados, " 00 00 00 00 0");
+			}
+			else
+			{
+				// TODO: erro, constante nao valida
+				free(temp);
+				return 0;
+			}
+			strcat(dados, arg); 
+			strcat(dados,"\n");
+			free(temp);
+		}
+		return 1;
+	}
+	else
+	{
+		//TODO: testar recebimento de variavel setada
+    	// int end_dir = getDiretivaSetada( arg, diretivas);
+    	// if (end_dir != -1)
+    	// {
+    	// 	posicaoAtual->pos = end_dir;
+    	// 	posicaoAtual->a_direita = 0;
+    	// 	return 1;
+    	// }
+    	// else
+    	// {
+    	// 	//TODO: erro, variavel nao existente
+    	// }
+	}
+	free(temp);
     return 0;
 }
 
@@ -92,14 +162,34 @@ int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *diretivas)
 	int i = 0;
 	while(strcmp(diretivas[i].nome, "") == 0)
 	{
-		if(strlen(nomeDiretiva) == strlen(diretivas[i].nome) && strcmp(diretivas[i].nome, nomeDiretiva) == 0)
+		if(strlen(nomeDiretiva) == strlen(diretivas[i].nome))
 		{
-			return strtol(diretivas[i].valor, NULL, 10);
+			if(strcmp(diretivas[i].nome, nomeDiretiva) == 0)
+				return strtol(diretivas[i].valor, NULL, 10);
 		}
 		i++;
 	}
 	//TODO: erro, varialvel nao setada
 	return -1;
+}
+
+void formatarPos(int pos, char *s_pos)
+{
+	char *prefixo = malloc(sizeof (char*));
+	sprintf(s_pos,"%d",pos);
+	if(pos < 10)
+	{
+		strcpy(prefixo, "00");
+		strcat(prefixo, s_pos);
+		strcpy(s_pos, prefixo);
+	}
+	else if(pos < 100)
+	{
+		strcpy(prefixo, "0");
+		strcat(prefixo, s_pos);
+		strcpy(s_pos, prefixo);
+	}
+	free(prefixo);
 }
 
 // int trataDiretivas(FILE *arq, Posicao posicaoAtual, Diretiva diretivas[], FILE *hex){
@@ -166,35 +256,6 @@ int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *diretivas)
 //     return 1; /* caso de certo */
 // }
 
-
-
-// int diretivaWord(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
-//     int i, achou = 0, n;
-//      se o primeiro digito nao for um numero,
-//     o argumento passado eh uma constante
-//     que necessita ter seu valor inserido no vetor
-//     de diretivas 
-//     if(mnemonicos(arg))
-//         return 0;
-
-//     if(isdigit(arg[0])){
-//         for(i = 0; i < 1000 && !achou; i++)
-//             if(!strcmp(arg, diretivas[i].nome)){
-//                 n = diretivas[i].valor;
-//                 achou = 1;
-//                 break;
-//             }
-//         /* se nao achar */
-//         if(!achou)
-//             return 0;
-//     }
-//     else
-//         sscanf(arg, "%d", &n);
-//     /* printa no arquivo: posicaoAtual n
-//      Exemplo posicaoAtual = 102 e n =3
-//      102 00 00 00 03*/
-//      return 1;
-// }
 
 // int diretivaAlign(char *arg, Diretiva diretivas[], Posicao posicaoAtual){
 //     int n;

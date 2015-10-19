@@ -23,9 +23,11 @@ typedef struct posicao
 }Posicao;
 
 int diretivaValida(char *token);
-int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *enderecoAtual);
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *enderecoAtual, char *dados);
 int diretivaOrg(char *arg, DiretivaSet *var_setadas, Posicao *posicaoAtual);
+int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados);
 int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *var_setadas);
+void formatarPos(int pos, char *s_pos);
 
 // int diretivaSet(char *arg1, char *arg2, DiretivaSet var_setadas[]);
 // int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao posicaoAtual);

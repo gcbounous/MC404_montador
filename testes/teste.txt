@@ -1,12 +1,16 @@
 .org 0x011
 	MUL M(0x103) #blablabla
 Teste:
-
+	JGEZ M(teste2)
 	LDMQ
 	STr M(0x102)
-
+.org 0x045
 Teste2:
-	JGEZ M(teste2)
-
 	JGEZ M(teste)
+	#STr M(0x106)
+
+.word
+0x111
+
+.word 0x69
 

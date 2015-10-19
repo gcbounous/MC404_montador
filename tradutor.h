@@ -1,7 +1,7 @@
 #ifndef TRADUTOR_H_   
 #define TRADUTOR_H_
 
-enum mnemonico
+typedef enum mnemonico
 {
 	LDMQ = 1,
 	LDMQM,
@@ -20,8 +20,7 @@ enum mnemonico
 	LSH,
 	RSH,
 	STM
-};
-typedef enum mnemonico Mnemonico;
+}Mnemonico;
 
 char* traduzir(int mnemonico, char* endereco, int a_direita, char *codigo);
 char* retornaCodigoLDMQ(char *codigo);

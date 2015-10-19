@@ -38,10 +38,6 @@ int main(int argc, char *argv[])
 		vetorTokens = retornaTokens(argv[1], vetorTokens);
 	}
 
-	recuperarRotulos(vetorTokens, rotulos);
-
-	preencherRotulos(vetorTokens, rotulos);
-
 	interpretar(nomeSemSufixo, vetorTokens, rotulos);
 
 	free(nomeSemSufixo);
@@ -62,6 +58,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	char *codigo = malloc(sizeof(char*));
 	char *posicao = malloc(sizeof(char*));
 	char *endereco = malloc(sizeof(char*));
+	char *dados = malloc(sizeof(char*)*sizeof(char*));
 
 	// VariavelSet variaveis[100];
 	Posicao posicaoAtual;
@@ -69,6 +66,9 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	posicaoAtual.a_direita = 0;
 
 	arq_saida = fopen(strcat(nomeSemSufixo, ".hex"), "w");
+
+	//preenche rotulos com seus enderecos e escreve os dados
+	preLeitura(tokens, rotulos, dados);
 
 	int i = 0;
 	while (strcmp(tokens[i],"") != 0)
@@ -132,10 +132,11 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual);
-			printf("%s é uma diretiva valida, posicaoAtual: %d, %d\n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
+			int d = trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL);
+			i += d;
+			printf("%s é uma diretiva valida, posicaoAtual: %d, %d e salta %d linhas\n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita, d);
 		}
-		// else printf("%s nao é um token valido\n", uma_linha);
+		else printf("%s nao é um token valido\n", uma_linha);
 
 		//para a ultima istrucao, completa a linha ou para completar uma linha depois de um .org
 		if((strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1) ||( (int)strlen(linha_hex) == 11 && posicaoAtual.a_direita == 0))
@@ -146,14 +147,21 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 
 		i++;
 	}
+	fprintf(arq_saida, "\n%s\n",dados);
 
-	fclose(arq_saida);
 	free(linha_hex);
 	free(codigo);
 	free(posicao);
+	free(endereco);
+	free(dados);
+
+	fclose(arq_saida);
 }
 
-void preencherRotulos(char **tokens, Rotulo rotulos[])
+/*
+* Metodo que faz uma pre leitura do programa recuperando e preenchendo os rotulos e interpretando as diretivas
+*/
+void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 {
 	char uma_linha[100];
 	//TODO: fazer!!! DiretivaSet *var_setadas
@@ -161,6 +169,8 @@ void preencherRotulos(char **tokens, Rotulo rotulos[])
 	Posicao posicaoAtual;
 	posicaoAtual.pos = 0;
 	posicaoAtual.a_direita = 0;
+
+	recuperarRotulos(tokens, rotulos);
 
 	int i = 0;
 	while (strcmp(tokens[i],"") != 0)
@@ -175,6 +185,9 @@ void preencherRotulos(char **tokens, Rotulo rotulos[])
 			if(posicaoAtual.a_direita == 0)
 			{
 				posicaoAtual.a_direita = 1;
+
+				if(strcmp(tokens[i+1], ".WORD") == 0 || strcmp(tokens[i+2], ".WORD") == 0)
+					posicaoAtual.pos++;
 			}
 			else
 			{
@@ -199,12 +212,10 @@ void preencherRotulos(char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados);
 		}
-
 		i++;
 	}
-
 }
 
 //Metodo retorna codigo do mnemonico(associado ao enum) se instrucao existir
@@ -275,25 +286,6 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 
 	//endereco valido 
 	return 1;
-}
-
-void formatarPos(int pos, char *s_pos)
-{
-	char *prefixo = malloc(sizeof (char*));
-	sprintf(s_pos,"%d",pos);
-	if(pos < 10)
-	{
-		strcpy(prefixo, "00");
-		strcat(prefixo, s_pos);
-		strcpy(s_pos, prefixo);
-	}
-	else if(pos < 100)
-	{
-		strcpy(prefixo, "0");
-		strcat(prefixo, s_pos);
-		strcpy(s_pos, prefixo);
-	}
-	free(prefixo);
 }
 
 //retorna o endereco do rotulo achado
