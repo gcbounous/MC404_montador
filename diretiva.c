@@ -24,7 +24,7 @@ int diretivaValida(char *token)
 /* Metodo que acha a diretiva a ser tratada e a aplica mudando a tabela de variaveis e a posicaoAtual
 * Retorna a quantidade de tokens a ser saltado de acordo com a quantidade de argumentos usados pela diretiva
 */
-int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual, char *dados)
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual, char *dados, int *flag_org)
 {	
 	int salto = 0; //quantidade de linhas a saltar (argumentos 1 e 2 caso forem solicitado)
 	MnemonicoDiretiva mnemD = diretivaValida(token);
@@ -33,12 +33,14 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 		case ORG:
 			if(diretivaOrg(arg1, var_setadas, posicaoAtual))
 			{
+				*flag_org = 1;
 				salto += 1;
 			}
 			break;
 		case WORD:
-			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados))
+			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados, *flag_org))
 			{
+				*flag_org = 0;
 				salto += 1;
 			}
 			break;
@@ -99,7 +101,7 @@ int diretivaOrg(char *arg, DiretivaSet *diretivas, Posicao *posicaoAtual)
     return 0;
 }
 
-int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados)
+int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados, int flag_org)
 {
 	char *temp = malloc(sizeof(char*));
 	if(arg[0] == '0' && arg[1] == 'X')
@@ -108,7 +110,10 @@ int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char
 		{
 			arg += 2;
 
-			formatarPos(posicaoAtual->pos, temp);
+			if(flag_org)
+				formatarPos(posicaoAtual->pos, temp);
+			else
+				formatarPos(++posicaoAtual->pos, temp);
 			strcat(dados, temp);
 
 			if((int)strlen(arg) == 3)

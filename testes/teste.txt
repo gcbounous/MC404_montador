@@ -9,8 +9,9 @@ Teste2:
 	JGEZ M(teste)
 	#STr M(0x106)
 
+
 .word
 0x111
-
+.org 0x225
 .word 0x69
 

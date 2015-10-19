@@ -59,6 +59,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	char *posicao = malloc(sizeof(char*));
 	char *endereco = malloc(sizeof(char*));
 	char *dados = malloc(sizeof(char*)*sizeof(char*));
+	int flag_org = 0;
 
 	// VariavelSet variaveis[100];
 	Posicao posicaoAtual;
@@ -123,16 +124,18 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 				posicaoAtual.pos++;
 				fprintf(arq_saida, "%s\n",linha_hex );
 			}
+			flag_org = 0;
 		}
 		// verifica se é rotulo
 		else if (rotuloValido(uma_linha))
 		{
 			//se for um rotulo a gente ignora
+			flag_org = 0;
 		}
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			int d = trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL);
+			int d = trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL, &flag_org);
 			i += d;
 			printf("%s é uma diretiva valida, posicaoAtual: %d, %d e salta %d linhas\n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita, d);
 		}
@@ -163,6 +166,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 */
 void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 {
+	int flag_org = 0;
 	char uma_linha[100];
 	//TODO: fazer!!! DiretivaSet *var_setadas
 
@@ -185,15 +189,13 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 			if(posicaoAtual.a_direita == 0)
 			{
 				posicaoAtual.a_direita = 1;
-
-				if(strcmp(tokens[i+1], ".WORD") == 0 || strcmp(tokens[i+2], ".WORD") == 0)
-					posicaoAtual.pos++;
 			}
 			else
 			{
 				posicaoAtual.a_direita = 0;
 				posicaoAtual.pos++;
 			}
+			flag_org = 0;
 		}
 		// verifica se é rotulo
 		else if (rotuloValido(uma_linha))
@@ -205,6 +207,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 				{
 					rotulos[j].endereco = posicaoAtual.pos;
 					rotulos[j].a_direita = posicaoAtual.a_direita;
+					flag_org = 0;
 					break;
 				}
 			}
@@ -212,7 +215,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org);
 		}
 		i++;
 	}
