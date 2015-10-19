@@ -6,8 +6,8 @@
 #include "rotulo.h"
 #include "retornaTokens.h"
 #include "tradutor.h"
-#include "montador.h"
 #include "diretiva.h"
+#include "montador.h"
 
 int main(int argc, char *argv[])
 {
@@ -58,11 +58,12 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	char *codigo = malloc(sizeof(char*));
 	char *posicao = malloc(sizeof(char*));
 	char *endereco = malloc(sizeof(char*));
-	char *dados = malloc(sizeof(char*)*1000);
+	char *dados = malloc(sizeof(char*)*100000);
 	int flag_org = 0;
 	int flag_align = 0;
 
-	// VariavelSet variaveis[100];
+	DiretivaSet variaveis[100];
+
 	Posicao posicaoAtual;
 	posicaoAtual.pos = 0;
 	posicaoAtual.a_direita = 0;
@@ -70,7 +71,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	arq_saida = fopen(strcat(nomeSemSufixo, ".hex"), "w");
 
 	//preenche rotulos com seus enderecos e escreve os dados
-	preLeitura(tokens, rotulos, dados);
+	preLeitura(tokens, rotulos, variaveis, dados);
 
 	int i = 0;
 	while (strcmp(tokens[i],"") != 0)
@@ -86,8 +87,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			strcpy(linha_hex, posicao);
 			strcat(linha_hex, " ");
 		}
-		printf("%s %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
-
+		
 		//verifica se é instrucao e escreve o codigo com o endereco da instrucao no .hex
 		if (instrucao != 0)
 		{
@@ -160,7 +160,7 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			{
 				i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
 			}
-			printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
+			// printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 		}
 		else printf("ERRO: %s nao é um token valido\n", uma_linha);
 
@@ -182,11 +182,11 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	}
 	fprintf(arq_saida, "\n%s\n",dados);
 
-	free(linha_hex);
-	free(codigo);
-	free(posicao);
-	free(endereco);
 	free(dados);
+	free(endereco);
+	free(posicao);
+	free(codigo);
+	free(linha_hex);	
 
 	fclose(arq_saida);
 }
@@ -194,12 +194,11 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 /*
 * Metodo que faz uma pre leitura do programa recuperando e preenchendo os rotulos e interpretando as diretivas
 */
-void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
+void preLeitura(char **tokens, Rotulo rotulos[], DiretivaSet var_setadas[], char *dados)
 {
 	int flag_org = 0;
 	int flag_align = 0;
 	char uma_linha[100];
-	//TODO: fazer!!! DiretivaSet *var_setadas
 
 	Posicao posicaoAtual;
 	posicaoAtual.pos = 0;
@@ -248,7 +247,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL, &flag_org, &flag_align);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], var_setadas, &posicaoAtual, NULL, &flag_org, &flag_align);
 		}
 		i++;
 	}

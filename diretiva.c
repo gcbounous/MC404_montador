@@ -24,7 +24,7 @@ int diretivaValida(char *token)
 /* Metodo que acha a diretiva a ser tratada e a aplica mudando a tabela de variaveis e a posicaoAtual
 * Retorna a quantidade de tokens a ser saltado de acordo com a quantidade de argumentos usados pela diretiva
 */
-int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas, Posicao *posicaoAtual, char *dados, int *flag_org, int *flag_align)
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int *flag_org, int *flag_align)
 {	
 	int salto = 0; //quantidade de linhas a saltar (argumentos 1 e 2 caso forem solicitado)
 	MnemonicoDiretiva mnemD = diretivaValida(token);
@@ -96,28 +96,28 @@ int diretivaOrg(char *arg, Posicao *posicaoAtual)
     return 0;
 }
 
-int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados, int flag_org)
+int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int flag_org)
 {
 	if(isdigit(arg[0]))
 	{
 		if(dados != NULL)
 		{	
-			char *temp = malloc(sizeof(char*));		
+			char *temp = malloc(sizeof(char*)*1000);		
 			if(arg[0] == '0' && arg[1] == 'X')
 			{				
 				arg += 2;				
 			}
-			if(flag_org)
-				formatarPos(posicaoAtual->pos, temp);
-			else
-				formatarPos(++posicaoAtual->pos, temp);
-			strcat(dados, temp);
+			if(!flag_org)
+				posicaoAtual->pos++;
+			
+			formatarPos(posicaoAtual->pos, temp);
+			//strcat(dados, temp);
 
 			if((int)strlen(arg) == 3)
 			{
-				strcat(dados, " 00 00 00 0");
-				dados[(int)strlen(dados)] = arg[0];
-				strcat(dados, " ");
+				strcat(temp, " 00 00 00 0");
+				temp[(int)strlen(temp)] = arg[0];
+				strcat(temp, " ");
 				arg += 1;
 			}
 			else if((int)strlen(arg) == 2)
@@ -134,8 +134,9 @@ int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char
 				free(temp);
 				return 0;
 			}
-			strcat(dados, arg); 
-			strcat(dados,"\n");
+			strcat(temp, arg); 
+			strcat(temp,"\n");
+			strcat(dados,temp);
 			free(temp);
 		}
 		return 1;
@@ -172,19 +173,19 @@ int diretivaAlign(char *arg, Posicao *posicaoAtual)
 }
 
 
-int diretivaWfill(char *arg1, char *arg2, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados, int flag_org)
+int diretivaWfill(char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int flag_org)
 {
-	//TODO: erro de segmentacao com n grande de repeticoes
 	int repeticoes = strtol(arg1, NULL, 10);	
 	if(repeticoes > 0 && isdigit(arg2[0]))
 	{
 		if(dados != NULL)
 		{	
-			char *temp_valor = malloc(sizeof(char*));	
-			char *temp = malloc(sizeof(char*));		
+			char temp_valor[14];
+			char *temp = (char*)malloc(sizeof(char*));	
+
 			if(arg2[0] == '0' && arg2[1] == 'X')
 			{				
-				arg2 += 2;				
+				arg2 += 2;		
 			}
 			if(!flag_org)
 				posicaoAtual->pos++;
@@ -207,7 +208,6 @@ int diretivaWfill(char *arg1, char *arg2, DiretivaSet diretivas[], Posicao *posi
 			else
 			{
 				// TODO: erro, constante nao valida
-				free(temp_valor);				
 				free(temp);
 				return 0;
 			}
@@ -224,7 +224,6 @@ int diretivaWfill(char *arg1, char *arg2, DiretivaSet diretivas[], Posicao *posi
 			}
 			posicaoAtual->pos--;
 
-			free(temp_valor);
 			free(temp);
 		}
 		return 1;
@@ -247,15 +246,59 @@ int diretivaWfill(char *arg1, char *arg2, DiretivaSet diretivas[], Posicao *posi
     return 0;
 }
 
-int getDiretivaSetada(char *nomeDiretiva, DiretivaSet *diretivas)
+int diretivaSet(char *arg1, char *arg2, DiretivaSet var_setadas[])
+{
+	int bool_ok = 0;
+	if(!isalpha(arg1[0]))
+	{
+		bool_ok = 1;
+		int i = 1;
+	    while(arg1[i] != '\0')
+	    {
+	    	if(!isalnum(arg1[i]))
+	    	{
+	    		bool_ok = 0;
+	    		break;
+	    	}
+	    	i++;
+	    }
+
+	    if(arg2[0] == '0' && arg2[1] == 'X')
+	    {				
+	    	arg2 += 2;		
+	    }
+
+	    int arg_int = strtol(arg2, NULL, 10);
+	    if(arg_int < 0) 
+	    	bool_ok = 0;
+
+	    if(bool_ok)
+	    {
+	    	for(i = 0; i<100; i++)
+	    	{
+	    		if(strcmp(var_setadas[i].nome, "" ) == 0)
+	    		{
+	    			break;
+	    		}
+	    	}
+	    	strcpy(var_setadas[i].nome, arg1);
+	    	strcpy(var_setadas[i].valor, arg2);
+
+	    	return 1;
+	    }
+	}
+   return 0;
+}
+
+int getDiretivaSetada(char *nomeDiretiva, DiretivaSet var_setadas[])
 {
 	int i = 0;
-	while(strcmp(diretivas[i].nome, "") == 0)
+	while(strcmp(var_setadas[i].nome, "") == 0)
 	{
-		if(strlen(nomeDiretiva) == strlen(diretivas[i].nome))
+		if(strlen(nomeDiretiva) == strlen(var_setadas[i].nome))
 		{
-			if(strcmp(diretivas[i].nome, nomeDiretiva) == 0)
-				return strtol(diretivas[i].valor, NULL, 10);
+			if(strcmp(var_setadas[i].nome, nomeDiretiva) == 0)
+				return strtol(var_setadas[i].valor, NULL, 10);
 		}
 		i++;
 	}
@@ -281,27 +324,3 @@ void formatarPos(int pos, char *s_pos)
 	}
 	free(prefixo);
 }
-
-
-// int diretivaSet(char *arg2, char *arg2, Diretiva diretivas[]){
-//     int i = 0, n;
-//     if(mnemonicos(arg1) || mnemonicos(arg2))
-//         return 0;
-
-//     /* procura a primeira posicao que esteja
-//     vazia no vetor de diretivas */
-//     while(diretivas[i].nome != NULL)
-//         i++;
-//     /* caso os argumentos nao sejam instrucoes,
-//      sao considerados validos
-//      obs: vou refazer a funcao para verificar se
-//      o argumento passado eh um mnemonico */
-
-//     diretivas[i].nome = arg1;
-//     sscanf(arg2, "%d", &n);
-//     diretivas[i].valor = n;
-
-
-//     return 1; /* caso de certo */
-// }
-

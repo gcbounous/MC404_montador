@@ -1,4 +1,4 @@
-.org 0x011
+.org 0x311
 	MUL M(0x103) #blablabla
 Teste:
 	JGEZ M(teste2)
@@ -13,8 +13,13 @@ Teste2:
 .word 
 0x111
 .org 0x225
-.word 0x69
+.word 0x695
 .word teste2
 
-.wfill 100, 5
+.wfill 2, 1
+
+.org 0x555
+.wfill 50 , 0x022
+.wfill 100 , 185
+
 

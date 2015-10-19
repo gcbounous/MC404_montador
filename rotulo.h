@@ -1,7 +1,6 @@
 #ifndef ROTULO_H_   
 #define ROTULO_H_
 
-
 struct Rotulo
 {
 	char nome[100];
