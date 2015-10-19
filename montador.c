@@ -135,9 +135,19 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			int d = trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL, &flag_org);
-			i += d;
-			printf("%s é uma diretiva valida, posicaoAtual: %d, %d e salta %d linhas\n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita, d);
+			int end_rot = getEnderecoRotulo(tokens[i+1], rotulos);
+			if(end_rot != -1)
+			{
+				char *s_end_rot = malloc(sizeof(char*));
+				formatarPos(end_rot, s_end_rot);
+				i += trataDiretivas(uma_linha, s_end_rot, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org);
+				free(s_end_rot);
+			}
+			else
+			{
+				i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org);
+			}
+			printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 		}
 		else printf("%s nao é um token valido\n", uma_linha);
 
@@ -215,7 +225,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], char *dados)
 		//verifica se é diretiva
 		else if (diretivaValida(uma_linha))
 		{
-			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org);
+			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, NULL, &flag_org);
 		}
 		i++;
 	}

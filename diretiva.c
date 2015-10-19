@@ -31,13 +31,14 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 	switch (mnemD)
 	{
 		case ORG:
-			if(diretivaOrg(arg1, var_setadas, posicaoAtual))
+			if(diretivaOrg(arg1, posicaoAtual))
 			{
 				*flag_org = 1;
 				salto += 1;
 			}
 			break;
 		case WORD:
+			printf("%s\n", arg1);
 			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados, *flag_org))
 			{
 				*flag_org = 0;
@@ -60,11 +61,11 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet *var_setadas
 	return salto;
 }
 
-int diretivaOrg(char *arg, DiretivaSet *diretivas, Posicao *posicaoAtual)
+int diretivaOrg(char *arg, Posicao *posicaoAtual)
 {
 	arg += 2;
 	int arg_int = strtol(arg, NULL, 10);
-	if (strlen(arg) == strlen("000"))
+	if ((int)strlen(arg) == 3)
 	{
 		if(strncmp(arg,"000", strlen(arg)) == 0)
 		{	
@@ -83,33 +84,20 @@ int diretivaOrg(char *arg, DiretivaSet *diretivas, Posicao *posicaoAtual)
     		//TODO: erro, endereco invalido 
     	}
 	}
-    else
-    {
-    	//TODO: testar recebimento de variavel setada
-    	// int end_dir = getDiretivaSetada( arg, diretivas);
-    	// if (end_dir != -1)
-    	// {
-    	// 	posicaoAtual->pos = end_dir;
-    	// 	posicaoAtual->a_direita = 0;
-    	// 	return 1;
-    	// }
-    	// else
-    	// {
-    	// 	//TODO: erro, variavel nao existente
-    	// }
-    }
     return 0;
 }
 
 int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char *dados, int flag_org)
 {
-	char *temp = malloc(sizeof(char*));
-	if(arg[0] == '0' && arg[1] == 'X')
+	if(isdigit(arg[0]))
 	{
 		if(dados != NULL)
-		{
-			arg += 2;
-
+		{	
+			char *temp = malloc(sizeof(char*));		
+			if(arg[0] == '0' && arg[1] == 'X')
+			{				
+				arg += 2;				
+			}
 			if(flag_org)
 				formatarPos(posicaoAtual->pos, temp);
 			else
@@ -142,7 +130,7 @@ int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char
 			free(temp);
 		}
 		return 1;
-	}
+	}	
 	else
 	{
 		//TODO: testar recebimento de variavel setada
@@ -158,7 +146,6 @@ int diretivaWord(char *arg, DiretivaSet diretivas[], Posicao *posicaoAtual, char
     	// 	//TODO: erro, variavel nao existente
     	// }
 	}
-	free(temp);
     return 0;
 }
 

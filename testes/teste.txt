@@ -14,4 +14,5 @@ Teste2:
 0x111
 .org 0x225
 .word 0x69
+.word teste2
 
