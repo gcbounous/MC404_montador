@@ -29,9 +29,6 @@ int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao *posicaoAtual, ch
 int diretivaAlign(char *arg, Posicao *posicaoAtual);
 int diretivaWfill(char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int flag_org);
 int diretivaSet(char *arg1, char *arg2, DiretivaSet var_setadas[]);
-int getDiretivaSetada(char *nomeDiretiva, DiretivaSet var_setadas[]);
 void formatarPos(int pos, char *s_pos);
-
-// int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao posicaoAtual);
 
 #endif

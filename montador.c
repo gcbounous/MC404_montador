@@ -63,6 +63,12 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	int flag_align = 0;
 
 	DiretivaSet variaveis[100];
+	int j;
+	for(j = 0; j < 100; j++)
+	{
+		variaveis[j].nome = (char *)malloc(sizeof(char*));
+		variaveis[j].valor = (char *)malloc(sizeof(char*));
+	}
 
 	Posicao posicaoAtual;
 	posicaoAtual.pos = 0;
@@ -135,32 +141,62 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			//se for um rotulo a gente ignora
 			flag_org = 0;
 			flag_align = 0;		}
-		//verifica se é diretiva
+		//verifica se é diretiva e trabalha os dados relacionados
 		else if (diretivaValida(uma_linha))
 		{
-			int end_rot_var1 = getEnderecoRotulo(tokens[i+1], rotulos);
-			int end_rot_var2 = getEnderecoRotulo(tokens[i+1], rotulos);
-			if(end_rot_var1 != -1)
-			{
-				char *s_end_rot = malloc(sizeof(char*));
-				formatarPos(end_rot_var1, s_end_rot);
+			printf("arg1: %d / arg2: %d\n",estaEmVarSetadas(tokens[i+1], variaveis), estaEmVarSetadas(tokens[i+2], variaveis) );
 
-				i += trataDiretivas(uma_linha, s_end_rot, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
-				free(s_end_rot);
-			}
-			else if(end_rot_var2 != -1)
+			if(estaEmRotulos(tokens[i+1], rotulos) != -1 || estaEmRotulos(tokens[i+2], rotulos) != -1)
 			{
-				char *s_end_rot = malloc(sizeof(char*));
-				formatarPos(end_rot_var1, s_end_rot);
+				int end_rot_var1 = getEnderecoRotulo(tokens[i+1], rotulos);
+				int end_rot_var2 = getEnderecoRotulo(tokens[i+1], rotulos);
+				if(end_rot_var1 != -1)
+				{
+					char *s_end_rot = malloc(sizeof(char*));
+					formatarPos(end_rot_var1, s_end_rot);
 
-				i += trataDiretivas(uma_linha, tokens[i+1], s_end_rot, NULL, &posicaoAtual, dados, &flag_org, &flag_align);
-				free(s_end_rot);
+					i += trataDiretivas(uma_linha, s_end_rot, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
+					free(s_end_rot);
+				}
+				else if(end_rot_var2 != -1)
+				{
+					char *s_end_rot = malloc(sizeof(char*));
+					formatarPos(end_rot_var1, s_end_rot);
+
+					i += trataDiretivas(uma_linha, tokens[i+1], s_end_rot, NULL, &posicaoAtual, dados, &flag_org, &flag_align);
+					free(s_end_rot);
+				}
 			}
+			else if(estaEmVarSetadas(tokens[i+1], variaveis) || estaEmVarSetadas(tokens[i+2], variaveis))
+			{
+				char *valor_var1 = malloc(sizeof(char*));
+				char *valor_var2 = malloc(sizeof(char*));
+				valor_var1 = getValorDiretivaSet(tokens[i+1], variaveis);
+				valor_var2 = getValorDiretivaSet(tokens[i+2], variaveis);
+				
+				if(valor_var1 != NULL && valor_var2 != NULL)
+				{
+					i += trataDiretivas(uma_linha, valor_var1, valor_var2, NULL, &posicaoAtual, dados, &flag_org, &flag_align);
+				}
+				else if(valor_var1 != NULL)
+				{
+					i += trataDiretivas(uma_linha, valor_var1, tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
+				}
+				else if(valor_var2 != NULL)
+				{
+					i += trataDiretivas(uma_linha, tokens[i+1], valor_var2, NULL, &posicaoAtual, dados, &flag_org, &flag_align);
+				}
+
+				valor_var1 = NULL;
+				valor_var2 = NULL;
+				free(valor_var2);
+				free(valor_var1);
+			}			
 			else
 			{
 				i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
 			}
-			// printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
+			printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 		}
 		else printf("ERRO: %s nao é um token valido\n", uma_linha);
 
@@ -182,6 +218,18 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	}
 	fprintf(arq_saida, "\n%s\n",dados);
 
+	for (j = 0; j < 2; ++j)
+	{
+		printf("%d: %s / %s\n",j, variaveis[j].nome, variaveis[j].valor);
+	}
+
+
+	//liberacao da memoria
+	for(j = 0; j < 100; j++)
+	{
+		free(variaveis[j].nome);
+		free(variaveis[j].valor);
+	}
 	free(dados);
 	free(endereco);
 	free(posicao);
@@ -244,7 +292,7 @@ void preLeitura(char **tokens, Rotulo rotulos[], DiretivaSet var_setadas[], char
 				}
 			}
 		}
-		//verifica se é diretiva
+		//verifica se é diretiva e aplica os .set e .org
 		else if (diretivaValida(uma_linha))
 		{
 			i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], var_setadas, &posicaoAtual, NULL, &flag_org, &flag_align);
@@ -356,5 +404,31 @@ int estaEmRotulos(char *rotulo, Rotulo rotulos[])
 			return i;
 		}
 	}
+	return -1;
+}
+
+char* getValorDiretivaSet(char *var, DiretivaSet var_setadas[])
+{
+	int i = estaEmVarSetadas(var, var_setadas);
+	if( i != -1)
+	{
+		return var_setadas[i].valor;
+	}
+	return NULL;
+}
+
+int estaEmVarSetadas(char *nomeDiretiva, DiretivaSet var_setadas[])
+{
+	int i = 0;
+	while(strcmp(var_setadas[i].nome, "") != 0)
+	{
+		if(strlen(nomeDiretiva) == strlen(var_setadas[i].nome))
+		{
+			if(strcmp(var_setadas[i].nome, nomeDiretiva) == 0)
+				return i;
+		}
+		i++;
+	}
+	//TODO: erro, varialvel nao setada
 	return -1;
 }
