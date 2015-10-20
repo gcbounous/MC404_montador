@@ -144,8 +144,6 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		//verifica se é diretiva e trabalha os dados relacionados
 		else if (diretivaValida(uma_linha))
 		{
-			printf("arg1: %d / arg2: %d\n",estaEmVarSetadas(tokens[i+1], variaveis), estaEmVarSetadas(tokens[i+2], variaveis) );
-
 			if(estaEmRotulos(tokens[i+1], rotulos) != -1 || estaEmRotulos(tokens[i+2], rotulos) != -1)
 			{
 				int end_rot_var1 = getEnderecoRotulo(tokens[i+1], rotulos);
@@ -196,7 +194,6 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			{
 				i += trataDiretivas(uma_linha, tokens[i+1], tokens[i+2], NULL, &posicaoAtual, dados, &flag_org, &flag_align);
 			}
-			printf("%s é uma diretiva valida, posicaoAtual: %d, %d \n", uma_linha, posicaoAtual.pos, posicaoAtual.a_direita);
 		}
 		else printf("ERRO: %s nao é um token valido\n", uma_linha);
 
@@ -217,12 +214,6 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 		i++;
 	}
 	fprintf(arq_saida, "\n%s\n",dados);
-
-	for (j = 0; j < 2; ++j)
-	{
-		printf("%d: %s / %s\n",j, variaveis[j].nome, variaveis[j].valor);
-	}
-
 
 	//liberacao da memoria
 	for(j = 0; j < 100; j++)
