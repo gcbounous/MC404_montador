@@ -104,25 +104,25 @@ char* retornaCodigoLDABS(char *codigo, char *endereco)
 
 char* retornaCodigoJMPDireita(char *codigo, char *endereco)
 {
-	strcpy(codigo,"0D ");
+	strcpy(codigo,"0E ");
 	return strcat(codigo, endereco);
 }
 
 char* retornaCodigoJMPEsquerda(char *codigo, char *endereco)
 {
-	strcpy(codigo,"0E ");
+	strcpy(codigo,"0D ");
 	return strcat(codigo, endereco);
 }
 
 char* retornaCodigoJGEZDireita(char *codigo, char *endereco)
 {
-	strcpy(codigo,"0F ");
+	strcpy(codigo,"10 ");
 	return strcat(codigo, endereco);
 }
 
 char* retornaCodigoJGEZEsquerda(char *codigo, char *endereco)
 {
-	strcpy(codigo,"10 ");
+	strcpy(codigo,"0F ");
 	return strcat(codigo, endereco);
 }
 
@@ -178,12 +178,12 @@ char* retornaCodigoRSH(char *codigo)
 
 char* retornaCodigoSTMDireita(char *codigo, char *endereco)
 {
-	strcpy(codigo,"12 ");
+	strcpy(codigo,"13 ");
 	return strcat(codigo, endereco);
 }
 
 char* retornaCodigoSTMEsquerda(char *codigo, char *endereco)
 {
-	strcpy(codigo,"13 ");
+	strcpy(codigo,"12 ");
 	return strcat(codigo, endereco);
 }

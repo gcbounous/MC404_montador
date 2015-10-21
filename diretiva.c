@@ -24,7 +24,7 @@ int diretivaValida(char *token)
 /* Metodo que acha a diretiva a ser tratada e a aplica mudando a tabela de variaveis e a posicaoAtual
 * Retorna a quantidade de tokens a ser saltado de acordo com a quantidade de argumentos usados pela diretiva
 */
-int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int *flag_org, int *flag_align)
+int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int *flag_org, int *flag_align, int fim_instucoes)
 {	
 	int salto = 0; //quantidade de linhas a saltar (argumentos 1 e 2 caso forem solicitado)
 	MnemonicoDiretiva mnemD = diretivaValida(token);;
@@ -33,14 +33,14 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[
 	{
 		case ORG:
 			if(diretivaOrg(arg1, posicaoAtual))
-			{
+			{				
 				*flag_org = 1;
 				*flag_align = 0;
 				salto += 1;
 			}
 			break;
 		case WORD:
-			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados, *flag_org))
+			if(diretivaWord(arg1, var_setadas, posicaoAtual, dados, *flag_org, fim_instucoes))
 			{
 				*flag_org = 0;
 				*flag_align = 0;
@@ -81,15 +81,11 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[
 int diretivaOrg(char *arg, Posicao *posicaoAtual)
 {
 	arg += 2;
-	int arg_int = strtol(arg, NULL, 10);
-	if ((int)strlen(arg) == 3)
+	if (isdigit(arg[0]))
 	{
-		if(strncmp(arg,"000", strlen(arg)) == 0)
-		{	
-			posicaoAtual->pos = 0;
-			return 1;
-		}
-		else if (arg_int > 0)
+		int arg_int = strtol(arg, NULL, 10);
+
+		if (arg_int >= 0)
     	{
 			posicaoAtual->pos = arg_int;
 			return 1;
@@ -102,45 +98,36 @@ int diretivaOrg(char *arg, Posicao *posicaoAtual)
     return 0;
 }
 
-int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int flag_org)
+int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao *posicaoAtual, char *dados, int flag_org, int fim_instucoes)
 {
 	if(isdigit(arg[0]))
 	{
 		if(dados != NULL)
 		{	
-			char *temp = malloc(sizeof(char*)*1000);		
-			if(arg[0] == '0' && arg[1] == 'X')
-			{				
-				arg += 2;				
-			}
-			if(!flag_org)
+			char *temp = malloc(sizeof(char*)*1000);
+
+			if(!flag_org && !fim_instucoes)
+			{
 				posicaoAtual->pos++;
+			}
 			formatarPos(posicaoAtual->pos, temp);
-			if((int)strlen(arg) == 3)
+
+			if( preencheDadoHexa(temp, arg))
 			{
-				strcat(temp, " 00 00 00 0");
-				temp[(int)strlen(temp)] = arg[0];
-				strcat(temp, " ");
-				arg += 1;
-			}
-			else if((int)strlen(arg) == 2)
-			{
-				strcat(temp, " 00 00 00 00 ");
-			}
-			else if((int)strlen(arg) == 1)
-			{
-				strcat(temp, " 00 00 00 00 0");
+				strcat(temp,"\n");
+				strcat(dados,temp);
 			}
 			else
 			{
-				// TODO: erro, constante nao valida
-				free(temp);
-				return 0;
-			}
-			strcat(temp, arg); 
-			strcat(temp,"\n");
-			strcat(dados,temp);
+				//TODO: erro, argumento no formato errado
+			}	
+			
 			free(temp);
+		}
+		else
+		{
+			if(!flag_org )
+				posicaoAtual->pos++;
 		}
 		return 1;
 	}	
@@ -180,18 +167,15 @@ int diretivaWfill(char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *po
 
 			if((int)strlen(arg2) == 3)
 			{
-				strcpy(temp_valor, " 00 00 00 0");
-				temp_valor[(int)strlen(temp_valor)] = arg2[0];
-				strcat(temp_valor, " ");
-				arg2 += 1;
+				strcpy(temp_valor, " 00 000 00 ");
 			}
 			else if((int)strlen(arg2) == 2)
 			{
-				strcpy(temp_valor, " 00 00 00 00 ");
+				strcpy(temp_valor, " 00 000 00 0");
 			}
 			else if((int)strlen(arg2) == 1)
 			{
-				strcpy(temp_valor, " 00 00 00 00 0");
+				strcpy(temp_valor, " 00 000 00 00");
 			}
 			else
 			{
@@ -292,4 +276,46 @@ void formatarPos(int pos, char *s_pos)
 		strcpy(s_pos, prefixo);
 	}
 	free(prefixo);
+}
+
+int preencheDadoHexa(char *retorno, char *arg)
+{
+	if(retorno != NULL && arg != NULL)
+	{		
+		if(arg[0] == '0' && arg[1] == 'X')
+		{			
+			arg += 2;		
+		}
+		int tamanho_arg = strlen(arg);
+		if(tamanho_arg <= 10)
+		{
+			char *temp = (char*)malloc(sizeof(char*));
+			char *t = (char*)malloc(sizeof(char*));
+			strcpy(temp, " ");
+
+			int i, j = 0;
+			for(i = 0; i < 10; i++)
+			{
+				if(i == 2 || i == 5 || i == 7)
+					strcat(temp, " ");
+				if(i < 10 - tamanho_arg)
+					strcat(temp, "0");
+				else
+				{
+					t[0] = arg[j];
+					strcat(temp, t);
+					j++;
+				}
+			}
+			strcat(retorno,temp);
+			free(t);
+			free(temp);
+			return 1;
+		}
+		else
+		{
+			// TODO: erro, formato errado do argumento
+		}
+	}
+	return 0;
 }
