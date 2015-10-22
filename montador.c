@@ -349,7 +349,6 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 			}
 			i++;
 		}
-
 		int end = getEnderecoRotulo(token, rotulos);
 		if (end != -1)
 		{
@@ -360,7 +359,10 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 		else
 		{
 			token += 2;
-			strcpy(endereco, token);
+			if(strcmp(token, "0"))
+				strcpy(endereco, "000");
+			else
+				strcpy(endereco, token);
 		}
 	}
 	else
@@ -368,7 +370,6 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 		// TODO: erro endereco nao valido
 		return 0;
 	}
-
 	//endereco valido 
 	return 1;
 }

@@ -1,0 +1,21 @@
+# teste - Testa a codificacao de todas as instrucoes do IAS
+# teste06.s do Edson Borin - 2013
+# atualizado para os mnemonicos do Professor Ricardo Pannain - 2015 
+
+	LDMQ
+	LDMQM M(0)
+	STR M(0)
+	LOAD M(0)
+	LDN M(0)
+	LDABS M(0)
+	JMP M(rotulo)
+rotulo:	JGEZ M(rotul2)
+rotul2: ADD M(0)
+	ADDABS M(0)
+	SUB M(0)
+	SUBABS M(0)
+	MUL M(0)
+	DIV M(0)
+	LSH
+	RSH
+	STM M(0)
