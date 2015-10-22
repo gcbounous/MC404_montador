@@ -32,7 +32,7 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[
 	switch (mnemD)
 	{
 		case ORG:
-			if(diretivaOrg(arg1, posicaoAtual))
+			if(diretivaOrg(arg1, posicaoAtual, dados))
 			{				
 				*flag_org = 1;
 				*flag_align = 0;
@@ -64,7 +64,7 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[
 			}
 			break;
 		case ALIGN:
-			if(diretivaAlign(arg1, posicaoAtual))
+			if(diretivaAlign(arg1, posicaoAtual, dados))
 			{
 				*flag_org = 0;
 				*flag_align = 1;
@@ -72,29 +72,32 @@ int trataDiretivas(char* token, char *arg1, char *arg2, DiretivaSet var_setadas[
 			}	
 			break;
 		default:
-				//TODO: erro diretiva inexistente (caso mnemD = 0)
+				// erro diretiva inexistente (caso mnemD = 0)
 			break;
 	}
 	return salto;
 }
 
-int diretivaOrg(char *arg, Posicao *posicaoAtual)
+int diretivaOrg(char *arg, Posicao *posicaoAtual, char* dados)
 {
 	arg += 2;
 	if (isdigit(arg[0]))
 	{
 		int arg_int = strtol(arg, NULL, 10);
-
 		if (arg_int >= 0)
     	{
 			posicaoAtual->pos = arg_int;
 			return 1;
     	}
-    	else
+    	else if(dados != NULL)
     	{
-    		//TODO: erro, endereco invalido 
+    		printf("ERRO: %s nao é um endereco de .ORG valido;\n", arg);
     	}
-	}
+    }
+    else if(dados != NULL)
+    {
+    	printf("ERRO: %s nao é um endereco de .ORG valido;\n", arg);
+    }
     return 0;
 }
 
@@ -119,7 +122,7 @@ int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao *posicaoAtual, ch
 			}
 			else
 			{
-				//TODO: erro, argumento no formato errado
+				printf("ERRO: %s nao é um argumento de .WORD valido;\n", arg);
 			}	
 			
 			free(temp);
@@ -134,7 +137,7 @@ int diretivaWord(char *arg, DiretivaSet var_setadas[], Posicao *posicaoAtual, ch
     return 0;
 }
 
-int diretivaAlign(char *arg, Posicao *posicaoAtual)
+int diretivaAlign(char *arg, Posicao *posicaoAtual, char* dados)
 {
     int arg_int = strtol(arg, NULL, 10);
     if(arg_int == 1)
@@ -142,8 +145,8 @@ int diretivaAlign(char *arg, Posicao *posicaoAtual)
 		posicaoAtual->a_direita = 0;
 		return 1;
 	}
-	else
-		//TODO: erro, argumento nao valido
+	else if (dados != NULL)
+		printf("ERRO: %s nao é um argumento de .ALIGN valido;\n", arg);
 	return 0;
 }
 
@@ -165,26 +168,14 @@ int diretivaWfill(char *arg1, char *arg2, DiretivaSet var_setadas[], Posicao *po
 			if(!flag_org)
 				posicaoAtual->pos++;
 
-			if((int)strlen(arg2) == 3)
+			if( preencheDadoHexa(temp_valor, arg2))
 			{
-				strcpy(temp_valor, " 00 000 00 ");
-			}
-			else if((int)strlen(arg2) == 2)
-			{
-				strcpy(temp_valor, " 00 000 00 0");
-			}
-			else if((int)strlen(arg2) == 1)
-			{
-				strcpy(temp_valor, " 00 000 00 00");
+				strcat(temp_valor,"\n");
 			}
 			else
 			{
-				// TODO: erro, constante nao valida
-				free(temp);
-				return 0;
+				printf("ERRO: %s nao é uma constante valida para .WFILL;\n", arg2);
 			}
-			strcat(temp_valor, arg2); 
-			strcat(temp_valor,"\n");
 
 			int i;
 			for(i = 0; i < repeticoes; i++)
@@ -243,7 +234,7 @@ int diretivaSet(char *arg1, char *arg2, DiretivaSet var_setadas[])
 					}
 					else if(strcmp(var_setadas[i].nome, arg1) == 0)
 					{
-						//TODO: erro, constante arg1 ja foi setada
+						printf("ERRO: constante %s ja foi setada anteriormente;\n", arg1);
 						break;
 					}
 				}				
@@ -311,10 +302,6 @@ int preencheDadoHexa(char *retorno, char *arg)
 			free(t);
 			free(temp);
 			return 1;
-		}
-		else
-		{
-			// TODO: erro, formato errado do argumento
 		}
 	}
 	return 0;

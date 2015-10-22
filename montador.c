@@ -9,6 +9,8 @@
 #include "diretiva.h"
 #include "montador.h"
 
+int flag_erro = 0;
+
 int main(int argc, char *argv[])
 {
 	char *nomeSemSufixo = (char *) malloc(100);
@@ -132,7 +134,8 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			{
 				posicaoAtual.a_direita = 0;
 				posicaoAtual.pos++;
-				fprintf(arq_saida, "%s\n",linha_hex );
+				
+				fprintf(arq_saida, "%s\n",linha_hex );				
 			}
 
 			if(--n_instrucoes == 0)
@@ -201,11 +204,15 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 			}
 			fim_instrucoes = 0;
 		}
-		else printf("ERRO: %s nao é um token valido\n", uma_linha);
+		else 
+		{
+			flag_erro = 1;
+			printf("ERRO: %s nao é um token valido\n", uma_linha);
+		}
 
 		if((int)strlen(linha_hex) == 11 && flag_align)
 		{
-			if(flag_align)
+			if(flag_align && !flag_erro)
 			{
 				strcat(linha_hex, "00 000");
 				fprintf(arq_saida, "%s\n",linha_hex );
@@ -214,12 +221,15 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 
 		if((strcmp(tokens[i+1],"") == 0 && posicaoAtual.a_direita == 1))
 		{
-			//TODO: erro, dados nao alinhados. (Pense em usar a diretiva .align)
+			flag_erro = 1;
+			printf("ERRO: dados nao alinhados. (Pense em usar a diretiva .align)\n");
 		}
 
 		i++;
 	}
+	
 	fprintf(arq_saida, "%s\n",dados);
+	
 
 	//liberacao da memoria
 	for(j = 0; j < 100; j++)
@@ -234,6 +244,11 @@ void interpretar(char *nomeSemSufixo, char **tokens, Rotulo rotulos[])
 	free(linha_hex);	
 
 	fclose(arq_saida);
+
+	if(flag_erro)
+	{
+		remove(nomeSemSufixo);
+	}
 }
 
 /*
@@ -366,10 +381,7 @@ int enderecoValido(char *token, char *endereco, Rotulo rotulos[])
 		}
 	}
 	else
-	{
-		// TODO: erro endereco nao valido
 		return 0;
-	}
 	//endereco valido 
 	return 1;
 }
@@ -432,6 +444,5 @@ int estaEmVarSetadas(char *nomeDiretiva, DiretivaSet var_setadas[])
 		}
 		i++;
 	}
-	//TODO: erro, varialvel nao setada
 	return -1;
 }
